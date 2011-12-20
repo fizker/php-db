@@ -78,10 +78,43 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('SELECT a FROM db.b, db.c', $result);
 	}
 
-	
+	/**
+	 * @test
+	 */
+	public function select_PrefixIsSet_TablesArePrefixed() {
+		$db = $this->createHelper();
+
+		$db->setPrefix('prefix');
+		$result = $db->select('a')->from('b')->exec();
+		
+		$this->assertEquals('SELECT a FROM db.prefix_b', $result);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider provider_select_DatabaseIsSet_TablesArePrefixed
+	 */
+	public function select_DatabaseIsSet_TablesArePrefixed($database) {
+		$db = $this->createHelper();
+		
+		$db->setDatabase($database);
+		$result = $db->select('a')->from('b')->exec();
+		
+		$this->assertEquals("SELECT a FROM $database.b", $result);
+	}
+
+	public function provider_select_DatabaseIsSet_TablesArePrefixed() {
+		return array(
+			array('db'), 
+			array('db_1'),
+			array('db_2')
+		);
+	}
+
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
-			'db'=> 'a',
+			'db'=> 'db',
 			'host'=> 'b',
 			'user'=> 'c',
 			'pass'=> 'd'
