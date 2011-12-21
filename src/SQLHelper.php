@@ -24,12 +24,12 @@ class SQLHelper {
 	}
 	
 	public function insert($data) {
-		$i = new InsertBuilder();
+		$i = new InsertBuilder($this->db, $this->prefix);
 		return $i->insert($data);
 	}
 	
 	public function update($table) {
-		$u = new UpdateBuilder();
+		$u = new UpdateBuilder($this->db, $this->prefix);
 		return $u->update($table);
 	}
 	
@@ -37,13 +37,7 @@ class SQLHelper {
 }
 
 class SelectBuilder extends QueryBuilder {
-	private $db, $prefix;
 	private $what, $from, $where, $order;
-	
-	public function __construct($db, $prefix = '') {
-		$this->db = $db;
-		$this->prefix = $prefix;
-	}
 	
 	public function select($w) {
 		$what = array();
@@ -68,15 +62,10 @@ class SelectBuilder extends QueryBuilder {
 			$f = array($f);
 		}
 		
-		$prefix = $this->prefix;
-		$db = $this->db;
-		
 		$from = array();
 		foreach($f as $f) {
-			if($prefix && strpos($prefix, $f) !== 0) {
-				$f = $prefix.'_'.$f;
-			}
-			$from[] = $db.'.'.$f;
+			$f = $this->prefixTable($f);
+			$from[] = $f;
 		}
 		$from = implode(', ', $from);
 		
@@ -120,15 +109,17 @@ class InsertBuilder extends QueryBuilder {
 			$cols[] = '`'.$col.'`';
 			$vals[] = '"'.$this->escape($val).'"';
 		}
-		$query = 'INSERT INTO db.'.$this->table
+		$table = $this->prefixTable($this->table);
+		$query = 'INSERT INTO '.$table
 			.' ('.implode(', ', $cols).') VALUES ('.implode(', ', $vals).')';
 		return $query;
 	}
 }
 
 class UpdateBuilder extends QueryBuilder {
-	private $data, $where;
-	public function update() {
+	private $table, $data, $where;
+	public function update($table) {
+		$this->table = $table;
 		return $this;
 	}
 	public function set($data) {
@@ -140,7 +131,7 @@ class UpdateBuilder extends QueryBuilder {
 		return $this;
 	}
 	public function exec() {
-		$query = 'UPDATE db.table SET ';
+		$query = 'UPDATE '.$this->prefixTable($this->table).' SET ';
 		foreach($this->data as $col=>$val) {
 			$query .= '`'.$col.'`="'.$this->escape($val).'", ';
 		}
@@ -155,6 +146,12 @@ class UpdateBuilder extends QueryBuilder {
 }
 
 abstract class QueryBuilder {
+	private $db, $prefix;
+	public function __construct($db, $prefix = '') {
+		$this->db = $db;
+		$this->prefix = $prefix;
+	}
+	
 	public abstract function exec();
 	
 	protected function escape($str) {
@@ -162,6 +159,12 @@ abstract class QueryBuilder {
 			array('\"',		'"'), 
 			array('\\\"',	'\"'), 
 			$str);
+	}
+	protected function prefixTable($table) {
+		if($this->prefix && strpos($table, $this->prefix) !== 0) {
+			$table = $this->prefix.'_'.$table;
+		}
+		return $this->db.'.'.$table;
 	}
 }
 ?>

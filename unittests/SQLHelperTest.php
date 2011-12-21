@@ -81,14 +81,22 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @dataProvider provider_select_PrefixIsSet_TablesArePrefixed
 	 */
-	public function select_PrefixIsSet_TablesArePrefixed() {
+	public function select_PrefixIsSet_TablesArePrefixed($tables, $expectedTables) {
 		$db = $this->createHelper();
 
 		$db->setPrefix('prefix');
-		$result = $db->select('a')->from('b')->exec();
+		$result = $db->select('a')->from($tables)->exec();
 		
-		$this->assertEquals('SELECT a FROM db.prefix_b', $result);
+		$this->assertEquals('SELECT a FROM '.$expectedTables, $result);
+	}
+	public function provider_select_PrefixIsSet_TablesArePrefixed() {
+		return array(
+			array('b', 'db.prefix_b'),
+			array(array('b', 'c'), 'db.prefix_b, db.prefix_c'),
+			array(array('b', 'prefix_c'), 'db.prefix_b, db.prefix_c')
+		);
 	}
 
 	/**
@@ -164,6 +172,44 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals('INSERT INTO db.table (`a`) VALUES ("b\"c")', $result);
 	}
+	
+	/**
+	 * @test
+	 * @dataProvider provider_insert_DatabaseIsSet_DatabaseIsUsed
+	 */
+	public function insert_DatabaseIsSet_DatabaseIsUsed($database) {
+		$db = $this->createHelper();
+		
+		$db->setDatabase($database);
+		$result = $db->insert(array('a'=>'b'))->into('table')->exec();
+		
+		$this->assertEquals('INSERT INTO '.$database.'.table (`a`) VALUES ("b")', $result);
+	}
+	public function provider_insert_DatabaseIsSet_DatabaseIsUsed() {
+		return array(
+			array('db'),
+			array('bd')
+		);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider provider_insert_PrefixIsSet_PrefixIsUsed
+	 */
+	public function insert_PrefixIsSet_PrefixIsUsed($table, $expected) {
+		$db = $this->createHelper();
+		
+		$db->setPrefix('prefix');
+		$result = $db->insert(array('a'=>'b'))->into($table)->exec();
+		
+		$this->assertEquals('INSERT INTO db.'.$expected.' (`a`) VALUES ("b")', $result);
+	}
+	public function provider_insert_PrefixIsSet_PrefixIsUsed() {
+		return array(
+			array('table', 'prefix_table'),
+			array('prefix_table', 'prefix_table')
+		);
+	}
 
 	/**
 	 * @test
@@ -225,12 +271,35 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('UPDATE db.table SET `a`="b" WHERE a=b', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function update_PrefixIsSet_TableIsPrefixed() {
+		$db = $this->createHelper();
+		
+		$db->setPrefix('prefix');
+		$result = $db->update('table')->set(array('a'=>'b'))->exec();
+		
+		$this->assertEquals('UPDATE db.prefix_table SET `a`="b"', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function update_UpdateIsRun_TableIsRespected() {
+		$db = $this->createHelper();
+		
+		$result = $db->update('a')->set(array('a'=>'b'))->exec();
+		
+		$this->assertEquals('UPDATE db.a SET `a`="b"', $result);
+	}
+
 
 	/**
 	 * @test
 	 */
 	public function escape_ValueWithEscapedQuote_ValueShouldBeDoubleEscaped() {
-		$db = new TestableQueryBuilder();
+		$db = new TestableQueryBuilder('a');
 		
 		$result = $db->escape('\"');
 		
