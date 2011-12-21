@@ -28,14 +28,15 @@ class SQLHelper {
 		return $i->insert($data);
 	}
 	
-	public function update() {
-		return new UpdateBuilder();
+	public function update($table) {
+		$u = new UpdateBuilder();
+		return $u->update($table);
 	}
 	
 	public function setDebug() {}
 }
 
-class SelectBuilder {
+class SelectBuilder extends QueryBuilder {
 	private $db, $prefix;
 	private $what, $from, $where, $order;
 	
@@ -101,7 +102,7 @@ class SelectBuilder {
 	}
 }
 
-class InsertBuilder {
+class InsertBuilder extends QueryBuilder {
 	private $data, $table;
 	
 	public function insert($data) {
@@ -117,7 +118,7 @@ class InsertBuilder {
 		$vals = array();
 		foreach($this->data as $col=>$val) {
 			$cols[] = '`'.$col.'`';
-			$vals[] = '"'.str_replace('"', '\\"', $val).'"';
+			$vals[] = '"'.$this->escape($val).'"';
 		}
 		$query = 'INSERT INTO db.'.$this->table
 			.' ('.implode(', ', $cols).') VALUES ('.implode(', ', $vals).')';
@@ -125,12 +126,42 @@ class InsertBuilder {
 	}
 }
 
-class UpdateBuilder {
-	public function set() {
+class UpdateBuilder extends QueryBuilder {
+	private $data, $where;
+	public function update() {
+		return $this;
+	}
+	public function set($data) {
+		$this->data = $data;
+		return $this;
+	}
+	public function where($where) {
+		$this->where = $where;
 		return $this;
 	}
 	public function exec() {
-		return 'UPDATE db.table SET `a`="b"';
+		$query = 'UPDATE db.table SET ';
+		foreach($this->data as $col=>$val) {
+			$query .= '`'.$col.'`="'.$this->escape($val).'", ';
+		}
+		$query = substr($query, 0, -2);
+
+		if($this->where) {
+			$query .= ' WHERE '.$this->where;
+		}
+		
+		return $query;
+	}
+}
+
+abstract class QueryBuilder {
+	public abstract function exec();
+	
+	protected function escape($str) {
+		return str_replace(
+			array('\"',		'"'), 
+			array('\\\"',	'\"'), 
+			$str);
 	}
 }
 ?>
