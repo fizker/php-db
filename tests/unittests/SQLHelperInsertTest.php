@@ -18,7 +18,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 	public function insert_SingleValue_InsertsSingleValue($col, $value) {
 		$db = $this->createHelper();
 		
-		$result = $db->insert(array($col=>$value))->into('c')->exec();
+		$result = $db->insert(array($col=>$value))->into('c')->toString();
 		
 		$this->assertEquals("INSERT INTO db.c (`$col`) VALUES (\"$value\")", $result);
 	}
@@ -38,7 +38,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$result = $db->insert(array(
 			'a'=>'b',
 			'c'=>'d'
-		))->into('table')->exec();
+		))->into('table')->toString();
 		
 		$this->assertEquals('INSERT INTO db.table (`a`, `c`) VALUES ("b", "d")', $result);
 	}
@@ -49,7 +49,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 	public function insert_ValueWithQuotes_ItShouldEscapeTheQuotes() {
 		$db = $this->createHelper();
 		
-		$result = $db->insert(array('a'=>'b"c'))->into('table')->exec();
+		$result = $db->insert(array('a'=>'b"c'))->into('table')->toString();
 		
 		$this->assertEquals('INSERT INTO db.table (`a`) VALUES ("b\"c")', $result);
 	}
@@ -62,7 +62,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$db = $this->createHelper();
 		
 		$db->setDatabase($database);
-		$result = $db->insert(array('a'=>'b'))->into('table')->exec();
+		$result = $db->insert(array('a'=>'b'))->into('table')->toString();
 		
 		$this->assertEquals('INSERT INTO '.$database.'.table (`a`) VALUES ("b")', $result);
 	}
@@ -81,7 +81,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$db = $this->createHelper();
 		
 		$db->setPrefix('prefix');
-		$result = $db->insert(array('a'=>'b'))->into($table)->exec();
+		$result = $db->insert(array('a'=>'b'))->into($table)->toString();
 		
 		$this->assertEquals('INSERT INTO db.'.$expected.' (`a`) VALUES ("b")', $result);
 	}
@@ -99,7 +99,6 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 			'user'=> 'c',
 			'pass'=> 'd'
 		));
-		$db->setDebug(true);
 		return $db;
 	}
 }

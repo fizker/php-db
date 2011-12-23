@@ -11,6 +11,45 @@ use \sql\QueryBuilder;
  * possible as unit-tests. It will be done later on as integration-tests
  */
 class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
+	/**
+	 * @test
+	 * @expectedException InvalidArgumentException
+	 */
+	public function delete_TableIsNotGiven_ThrowsException() {
+		$db = $this->createHelper();
+		
+		$db->delete()->toString();
+	}
+	
+	/**
+	 * @test
+	 * @dataProvider provider_delete_TableIsGiven_TableIsDeleted
+	 */
+	public function delete_TableIsGiven_TableIsUsed($table) {
+		$db = $this->createHelper();
+		
+		$result = $db->delete()->from($table)->toString();
+		
+		$this->assertEquals("DELETE FROM db.$table", $result);
+	}
+	public function provider_delete_TableIsGiven_TableIsDeleted() {
+		return array(
+			array('a'),
+			array('b')
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function delete_WhereIsGiven_WhereIsIncluded() {
+		$db = $this->createHelper();
+		
+		$result = $db->delete()->from('table')->where('a=b')->toString();
+		
+		$this->assertEquals('DELETE FROM db.table WHERE a=b', $result);
+	}
+
 
 	public function createHelper() {
 		$db = new SQLHelper(array(
@@ -19,7 +58,6 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 			'user'=> 'c',
 			'pass'=> 'd'
 		));
-		$db->setDebug(true);
 		return $db;
 	}
 }

@@ -21,13 +21,27 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals('\\\\\"', $result);
 	}
+
+	/**
+	 * @test
+	 */
+	public function toString_execIsCalled_ShouldCallToString() {
+		$fakeBuilder = $this->getMockBuilder('\sql\QueryBuilder')
+			->disableOriginalConstructor()
+			->getMock(array('toString'));
+		
+		$fakeBuilder->expects($this->atLeastOnce())->method('toString');
+		
+		$fakeBuilder->exec();
+	}
+
 }
 
 class TestableQueryBuilder extends QueryBuilder {
 	public function escape($str) {
 		return parent::escape($str);
 	}
-	public function exec() {
+	public function toString() {
 		
 	}
 }

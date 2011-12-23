@@ -30,7 +30,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_WhereClauseMissing_QueryShouldMatch() {
 		$db = $this->createHelper();
 		
-		$result = $db->select('a')->from('b')->exec();
+		$result = $db->select('a')->from('b')->toString();
 		
 		$this->assertEquals('SELECT a FROM db.b', $result);
 	}
@@ -41,7 +41,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_WhatIsArray_fieldsAreNamed() {
 		$db = $this->createHelper();
 		
-		$result = $db->select(array('a'=>'A', 'B'=>'b'))->from('b')->exec();
+		$result = $db->select(array('a'=>'A', 'B'=>'b'))->from('b')->toString();
 		
 		$this->assertEquals('SELECT A AS a, b AS B FROM db.b', $result);
 	}
@@ -52,7 +52,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_WhatIsUnnamedArray_FieldsAreNotNamed() {
 		$db = $this->createHelper();
 		
-		$result = $db->select(array('a','b'))->from('c')->exec();
+		$result = $db->select(array('a','b'))->from('c')->toString();
 		
 		$this->assertEquals('SELECT a, b FROM db.c', $result);
 	}
@@ -63,7 +63,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_WhatIsMixed_SomeFieldsAreNamed() {
 		$db = $this->createHelper();
 		
-		$result = $db->select(array('a','B'=>'b'))->from('c')->exec();
+		$result = $db->select(array('a','B'=>'b'))->from('c')->toString();
 		
 		$this->assertEquals('SELECT a, b AS B FROM db.c', $result);
 	}
@@ -74,7 +74,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_TablesAreArray_AllAreIncluded() {
 		$db = $this->createHelper();
 		
-		$result = $db->select('a')->from(array('b', 'c'))->exec();
+		$result = $db->select('a')->from(array('b', 'c'))->toString();
 		
 		$this->assertEquals('SELECT a FROM db.b, db.c', $result);
 	}
@@ -87,7 +87,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		$db = $this->createHelper();
 
 		$db->setPrefix('prefix');
-		$result = $db->select('a')->from($tables)->exec();
+		$result = $db->select('a')->from($tables)->toString();
 		
 		$this->assertEquals('SELECT a FROM '.$expectedTables, $result);
 	}
@@ -107,7 +107,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		$db = $this->createHelper();
 		
 		$db->setDatabase($database);
-		$result = $db->select('a')->from('b')->exec();
+		$result = $db->select('a')->from('b')->toString();
 		
 		$this->assertEquals("SELECT a FROM $database.b", $result);
 	}
@@ -125,7 +125,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	public function select_OrderIsGiven_TheDataIsOrdered() {
 		$db = $this->createHelper();
 		
-		$result = $db->select('a')->from('b')->order('a DESC')->exec();
+		$result = $db->select('a')->from('b')->order('a DESC')->toString();
 		
 		$this->assertEquals('SELECT a FROM db.b ORDER BY a DESC', $result);
 	}
@@ -137,7 +137,6 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 			'user'=> 'c',
 			'pass'=> 'd'
 		));
-		$db->setDebug(true);
 		return $db;
 	}
 }

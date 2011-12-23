@@ -33,6 +33,11 @@ class SQLHelper {
 		return $u->update($table);
 	}
 	
+	public function delete() {
+		$d = new DeleteBuilder($this->db, $this->prefix);
+		return $d;
+	}
+	
 	public function setDebug() {}
 }
 
@@ -80,7 +85,7 @@ class SelectBuilder extends QueryBuilder {
 		$this->order = $order;
 		return $this;
 	}
-	public function exec() {
+	public function toString() {
 		$query = "SELECT $this->what FROM $this->from";
 		if($this->where)
 			$query .= " WHERE $this->where";
@@ -102,7 +107,7 @@ class InsertBuilder extends QueryBuilder {
 		$this->table = $table;
 		return $this;
 	}
-	public function exec() {
+	public function toString() {
 		$cols = array();
 		$vals = array();
 		foreach($this->data as $col=>$val) {
@@ -130,13 +135,41 @@ class UpdateBuilder extends QueryBuilder {
 		$this->where = $where;
 		return $this;
 	}
-	public function exec() {
+	public function toString() {
 		$query = 'UPDATE '.$this->prefixTable($this->table).' SET ';
 		foreach($this->data as $col=>$val) {
 			$query .= '`'.$col.'`="'.$this->escape($val).'", ';
 		}
 		$query = substr($query, 0, -2);
 
+		if($this->where) {
+			$query .= ' WHERE '.$this->where;
+		}
+		
+		return $query;
+	}
+}
+
+class DeleteBuilder extends QueryBuilder {
+	private $table, $where;
+	
+	public function from($table) {
+		$this->table = $table;
+		return $this;
+	}
+	
+	public function where($where) {
+		$this->where = $where;
+		return $this;
+	}
+	
+	public function toString() {
+		if(!$this->table) {
+			throw new \InvalidArgumentException('Table should be given');
+		}
+		
+		$query = 'DELETE FROM '.$this->prefixTable($this->table);
+		
 		if($this->where) {
 			$query .= ' WHERE '.$this->where;
 		}
@@ -152,7 +185,10 @@ abstract class QueryBuilder {
 		$this->prefix = $prefix;
 	}
 	
-	public abstract function exec();
+	public abstract function toString();
+	public final function exec() {
+		return $this->toString();
+	}
 	
 	protected function escape($str) {
 		return str_replace(

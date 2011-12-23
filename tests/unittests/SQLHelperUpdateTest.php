@@ -21,7 +21,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->update('table')->set(array(
 			$col=>$val
-		))->exec();
+		))->toString();
 		
 		$this->assertEquals("UPDATE db.table SET `$col`=\"$val\"", $result);
 	}
@@ -42,7 +42,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			'a'=>'A',
 			'b'=>'B',
 			'c'=>'C'
-		))->exec();
+		))->toString();
 		
 		$this->assertEquals('UPDATE db.table SET `a`="A", `b`="B", `c`="C"', $result);
 	}
@@ -53,7 +53,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 	public function update_ValueWithQuote_EscapesTheQuote() {
 		$db = $this->createHelper();
 		
-		$result = $db->update('table')->set(array('a'=> 'b"c'))->exec();
+		$result = $db->update('table')->set(array('a'=> 'b"c'))->toString();
 		
 		$this->assertEquals('UPDATE db.table SET `a`="b\"c"', $result);
 	}
@@ -79,7 +79,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		$db = $this->createHelper();
 		
 		$db->setPrefix('prefix');
-		$result = $db->update('table')->set(array('a'=>'b'))->exec();
+		$result = $db->update('table')->set(array('a'=>'b'))->toString();
 		
 		$this->assertEquals('UPDATE db.prefix_table SET `a`="b"', $result);
 	}
@@ -90,7 +90,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 	public function update_UpdateIsRun_TableIsRespected() {
 		$db = $this->createHelper();
 		
-		$result = $db->update('a')->set(array('a'=>'b'))->exec();
+		$result = $db->update('a')->set(array('a'=>'b'))->toString();
 		
 		$this->assertEquals('UPDATE db.a SET `a`="b"', $result);
 	}
@@ -102,7 +102,6 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			'user'=> 'c',
 			'pass'=> 'd'
 		));
-		$db->setDebug(true);
 		return $db;
 	}
 }
