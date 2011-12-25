@@ -92,6 +92,20 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function insert_MultipleRows_AllRowsAreInserted() {
+		$db = $this->createHelper();
+		
+		$result = $db->insert(array(
+			array('a'=> 'A1', 'b'=> 'B1'),
+			array('a'=> 'A2', 'b'=> 'B2')
+		))->into('table')->toString();
+		
+		$this->assertEquals('INSERT INTO db.table (`a`, `b`) VALUES ("A1", "B1"), ("A2", "B2")', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',

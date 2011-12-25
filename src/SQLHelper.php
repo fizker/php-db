@@ -19,7 +19,14 @@ class SQLHelper {
 	public function __construct($credentials) {
 		if(isset($credentials['db']))
 			$this->setDatabase($credentials['db']);
+		$this->credentials = $credentials;
 		$this->prefix = '';
+	}
+	
+	public function connect() {
+		$creds = $this->credentials;
+		mysql_connect('localhost', $creds['user'], $creds['pass']);
+		mysql_select_db($this->db);
 	}
 	
 	public function setDatabase($db) {
