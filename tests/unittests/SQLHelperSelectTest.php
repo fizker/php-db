@@ -11,19 +11,6 @@ use \sql\QueryBuilder;
  * possible as unit-tests. It will be done later on as integration-tests
  */
 class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
-	
-	/**
-	 * @test
-	 */
-	public function select_DebugIsSet_ReturnsRawSQL() {
-		$db = $this->createHelper();
-		$db->setDebug(true);
-		
-		$result = $db->select('a')->from('b')->where('c')->exec();
-		
-		$this->assertEquals('SELECT a FROM db.b WHERE c', $result);
-	}
-
 	/**
 	 * @test
 	 */
