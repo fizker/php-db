@@ -19,7 +19,29 @@ class SQLHelperTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->escape('\"');
 		
-		$this->assertEquals('\\\\\"', $result);
+		$this->assertEquals('"\\\\\""', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function escape_ValueIsString_ValueIsQuoted() {
+		$builder = new TestableQueryBuilder('a');
+		
+		$result = $builder->escape('b');
+		
+		$this->assertEquals('"b"', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function escape_ValueIsNull_ValueRemainsNull() {
+		$builder = new TestableQueryBuilder('a');
+		
+		$result = $builder->escape(null);
+		
+		$this->assertEquals('NULL', $result);
 	}
 
 	/**

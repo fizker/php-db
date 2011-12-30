@@ -95,6 +95,17 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('UPDATE db.a SET `a`="b"', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function update_ValueIsNull_NullIsInserted() {
+		$db = $this->createHelper();
+		
+		$result = $db->update('a')->set(array('a'=>null))->toString();
+		
+		$this->assertEquals('UPDATE db.a SET `a`=NULL', $result);
+	}
+	
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',

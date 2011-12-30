@@ -25,10 +25,13 @@ abstract class QueryBuilder {
 	}
 	
 	protected function escape($str) {
-		return str_replace(
+		if($str === null) {
+			return 'NULL';
+		}
+		return '"'.str_replace(
 			array('\"',		'"'), 
 			array('\\\"',	'\"'), 
-			$str);
+			$str).'"';
 	}
 	protected function prefixTable($table) {
 		if($this->prefix && strpos($table, $this->prefix) !== 0) {

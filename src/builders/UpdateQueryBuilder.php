@@ -18,7 +18,7 @@ class UpdateBuilder extends QueryBuilder {
 	public function toString() {
 		$query = 'UPDATE '.$this->prefixTable($this->table).' SET ';
 		foreach($this->data as $col=>$val) {
-			$query .= '`'.$col.'`="'.$this->escape($val).'", ';
+			$query .= '`'.$col.'`='.$this->escape($val).', ';
 		}
 		$query = substr($query, 0, -2);
 

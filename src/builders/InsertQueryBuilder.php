@@ -29,7 +29,7 @@ class InsertBuilder extends QueryBuilder {
 		foreach($this->values as $row) {
 			$tmpvals = array();
 			foreach($row as $val) {
-				$tmpvals[] = '"'.$this->escape($val).'"';
+				$tmpvals[] = $this->escape($val);
 			}
 			$vals[] = '('. implode(', ', $tmpvals) .')';
 		}
