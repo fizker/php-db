@@ -24,7 +24,7 @@ abstract class QueryBuilder {
 		return new Results($sql);
 	}
 	
-	protected function escape($str) {
+	public function escape($str) {
 		if($str === null) {
 			return 'NULL';
 		}

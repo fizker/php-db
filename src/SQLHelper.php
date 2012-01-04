@@ -3,18 +3,20 @@ namespace sql;
 
 include(__DIR__.'/Results.php');
 include(__DIR__.'/builders/QueryBuilder.php');
+require(__DIR__.'/builders/DirectQueryBuilder.php');
 include(__DIR__.'/builders/InsertQueryBuilder.php');
 include(__DIR__.'/builders/SelectQueryBuilder.php');
 include(__DIR__.'/builders/UpdateQueryBuilder.php');
 include(__DIR__.'/builders/DeleteQueryBuilder.php');
 
+use \sql\builders\DirectQueryBuilder;
 use \sql\builders\SelectBuilder;
 use \sql\builders\DeleteBuilder;
 use \sql\builders\UpdateBuilder;
 use \sql\builders\InsertBuilder;
 
 class SQLHelper {
-	private $prefix, $db;
+	protected $prefix, $db;
 	
 	public function __construct($credentials) {
 		if(isset($credentials['db']))
@@ -55,6 +57,11 @@ class SQLHelper {
 	public function delete() {
 		$d = new DeleteBuilder($this->db, $this->prefix);
 		return $d;
+	}
+	
+	public function query($query) {
+		$q = new DirectQueryBuilder($this->db);
+		return $q->query($query);
 	}
 	
 	public function setDebug() {}
