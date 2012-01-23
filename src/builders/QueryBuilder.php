@@ -4,7 +4,7 @@ namespace sql\builders;
 use \sql\Results;
 
 abstract class QueryBuilder {
-	private $db, $prefix, $useDebug;
+	protected $db, $prefix, $useDebug;
 	public function __construct($db, $prefix = '', $useDebug = false) {
 		$this->useDebug = $useDebug;
 		$this->db = $db;
@@ -13,7 +13,7 @@ abstract class QueryBuilder {
 	
 	public abstract function toString();
 	
-	public final function exec() {
+	public function exec() {
 		$query = $this->toString();
 		if($this->useDebug) {
 			return $query;

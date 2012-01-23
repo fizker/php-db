@@ -8,12 +8,14 @@ include(__DIR__.'/builders/InsertQueryBuilder.php');
 include(__DIR__.'/builders/SelectQueryBuilder.php');
 include(__DIR__.'/builders/UpdateQueryBuilder.php');
 include(__DIR__.'/builders/DeleteQueryBuilder.php');
+require(__DIR__.'/builders/DefaultsQueryBuilder.php');
 
 use \sql\builders\DirectQueryBuilder;
 use \sql\builders\SelectBuilder;
 use \sql\builders\DeleteBuilder;
 use \sql\builders\UpdateBuilder;
 use \sql\builders\InsertBuilder;
+use \sql\builders\DefaultsQueryBuilder;
 
 class SQLHelper {
 	protected $prefix, $db;
@@ -62,6 +64,12 @@ class SQLHelper {
 	public function query($query) {
 		$q = new DirectQueryBuilder($this->db);
 		return $q->query($query);
+	}
+	
+	public function getDefaults($table) {
+		$b = new DefaultsQueryBuilder($this->db, $this->prefix);
+		$b->forTable($table);
+		return $b;
 	}
 	
 	public function setDebug() {}

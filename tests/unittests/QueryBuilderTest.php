@@ -51,7 +51,8 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		$debugMode = true;
 		$fakeBuilder = $this->getMockBuilder('\sql\builders\QueryBuilder')
 			->setConstructorArgs(array('database name', 'table prefix', $debugMode))
-			->getMock(array('toString'));
+			->setMethods(array('toString'))
+			->getMock();
 		
 		$fakeBuilder->expects($this->atLeastOnce())->method('toString');
 		

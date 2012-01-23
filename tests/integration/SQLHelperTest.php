@@ -18,7 +18,12 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		$link = mysql_connect('localhost', 'test-user', 'test-password');
 		mysql_select_db('test');
 		mysql_query('DROP TABLE IF EXISTS php_integration_tests');
-		mysql_query('CREATE TABLE php_integration_tests ( id int UNSIGNED NOT NULL AUTO_INCREMENT, name varchar(200), PRIMARY KEY(id) )');
+		mysql_query('CREATE TABLE php_integration_tests ( 
+			id int UNSIGNED NOT NULL AUTO_INCREMENT,
+			name varchar(200),
+			has_default VARCHAR(10) DEFAULT "val",
+			PRIMARY KEY(id)
+		)');
 		mysql_close($link);
 	}
 	
@@ -76,7 +81,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 			'id'=> '1',
 			'name'=> 'a'
 		))->into('php_integration_tests')->exec();
-		$sql = mysql_query('SELECT * FROM php_integration_tests WHERE id=1');
+		$sql = mysql_query('SELECT id,name FROM php_integration_tests WHERE id=1');
 		$row = mysql_fetch_assoc($sql);
 
 		$this->assertEquals(1, mysql_num_rows($sql));
@@ -98,7 +103,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 				'name'=> 'b'
 			)
 		))->into('php_integration_tests')->exec();
-		$sql = mysql_query('SELECT * FROM php_integration_tests');
+		$sql = mysql_query('SELECT id,name FROM php_integration_tests');
 
 		$this->assertEquals(2, mysql_num_rows($sql));
 		$this->assertEquals(array('id'=> 1, 'name'=> 'a'), mysql_fetch_assoc($sql));
@@ -140,7 +145,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 			)
 		))->into('php_integration_tests')->exec();
 		
-		$result = $db->select('*')->from('php_integration_tests')->exec();
+		$result = $db->select('id, name')->from('php_integration_tests')->exec();
 		
 		$this->assertEquals(2, $result->length());
 		$this->assertEquals(array('id'=> 1, 'name'=> 'a'), $result->getRow());
@@ -164,7 +169,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 			->where('name="a"')->exec();
 		
 		$this->assertEquals(1, $result->length(), '1 row was deleted');
-		$remainingRows = $db->select('*')->from('php_integration_tests')->exec();
+		$remainingRows = $db->select('id, name')->from('php_integration_tests')->exec();
 		$this->assertEquals(1, $remainingRows->length(), '1 row is left');
 		$this->assertEquals(array('id'=>2, 'name'=>'b'), $remainingRows->getRow());
 	}
@@ -188,12 +193,27 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals(1, $result->length(), '1 row was updated');
 		
-		$rows = $db->select('*')->from('php_integration_tests')->exec();
+		$rows = $db->select('id, name')->from('php_integration_tests')->exec();
 		$this->assertEquals(2, $rows->length(), 'Both rows are still there');
 		$this->assertEquals(array('id'=>1, 'name'=>'aa'), $rows->getRow());
 		$this->assertEquals(array('id'=>2, 'name'=>'b'), $rows->getRow());
 	}
 
+	/**
+	 * @test
+	 */
+	public function getDefaults_TableExists_ReturnsDefaultRow() {
+		$db = $this->createHelper();
+		
+		$row = $db
+			->getDefaults('php_integration_tests')
+			->exec();
+		
+		$this->assertEquals(array(
+			'name'=> null,
+			'has_default'=> 'val'
+		), $row);
+	}
 
 	private function createHelper() {
 		$db = new SQLHelper(array(
