@@ -2,8 +2,12 @@
 namespace sql;
 
 class Results {
-	private $length, $sql, $lastId;
+	private $length, $sql, $lastId, $array;
 	public function __construct($sql) {
+		if(is_array($sql)) {
+			$this->array = $sql;
+			return;
+		}
 		$this->sql = $sql;
 		if(is_bool($sql) && $sql) {
 			$this->length = mysql_affected_rows();
@@ -18,7 +22,22 @@ class Results {
 	}
 	
 	public function getRow() {
+		if($this->array) {
+			$el = current($this->array);
+			next($this->array);
+			return $el;
+		}
 		return mysql_fetch_assoc($this->sql);
+	}
+	
+	public function toArray() {
+		$array = array();
+		while($row = $this->getRow()) {
+			$array[] = $row;
+		}
+		reset($array);
+		$this->array = $array;
+		return $array;
 	}
 	
 	public function length() {
