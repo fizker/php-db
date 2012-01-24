@@ -4,6 +4,24 @@ namespace sql\builders;
 class DefaultsQueryBuilder extends QueryBuilder {
 	private $table;
 	
+	private function parseColumn($name, $col, &$output) {
+		$matches = array();
+		$match = preg_match('/DEFAULT ([^ ]+)/i', $col, $matches);
+		if($match) {
+			$match = $matches[1];
+			if($match === 'NULL') {
+				$match = null;
+			} else if($match[0] !== '"' && $match[0] !== "'") {
+				$match = (int)$match;
+			} else {
+				$match = trim($match, '"\'');
+			}
+			$output[$name] = $match;
+		} else if(strpos($col, 'NOT NULL') === false) {
+			$output[$name] = null;
+		}
+	}
+
 	public function getColumns($input) {
 		$first = strpos($input, '(')+1;
 		$last = strrpos($input, ')');
@@ -18,19 +36,7 @@ class DefaultsQueryBuilder extends QueryBuilder {
 			}
 			$i = strpos($col, '`', 1);
 			$name = substr($col, 1, $i-1);
-			$matches = array();
-			$match = preg_match('/DEFAULT ([^ ]+)/i', $col, $matches);
-			if($match) {
-				$match = $matches[1];
-				if($match === 'NULL') {
-					$match = null;
-				} else if($match[0] !== '"' && $match[0] !== "'") {
-					$match = (int)$match;
-				} else {
-					$match = trim($match, '"\'');
-				}
-				$defaults[$name] = $match;
-			}
+			$this->parseColumn($name, $col, $defaults);
 		}
 		return $defaults;
 	}

@@ -34,6 +34,27 @@ class DefaultsQueryBuilderTest extends PHPUnit_Framework_TestCase {
 		), $rows);
 	}
 
+	/**
+	 * @test
+	 */
+	public function getColumns_ColumnsHaveNoDefault_WatWat() {
+		$defaults = $this->createHelper()
+			->getDefaults('any table');
+		
+		$rows = $defaults->getColumns('CREATE TABLE `test` (
+ `a` int(11),
+ `b` int NOT NULL,
+ `c` varchar(200),
+ `d` varchar(200) NOT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=latin1');
+		
+		$this->assertEquals(array(
+			'a'=> null,
+			'c'=> null,
+		), $rows);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',
