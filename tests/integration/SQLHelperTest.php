@@ -21,7 +21,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		mysql_query('CREATE TABLE php_integration_tests ( 
 			id int UNSIGNED NOT NULL AUTO_INCREMENT,
 			name varchar(200),
-			has_default VARCHAR(10) DEFAULT "val",
+			has_default VARCHAR(10) DEFAULT "val ue \' """,
 			PRIMARY KEY(id)
 		)');
 		mysql_close($link);
@@ -211,7 +211,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals(array(
 			'name'=> null,
-			'has_default'=> 'val'
+			'has_default'=> 'val ue \' "'
 		), $row);
 	}
 

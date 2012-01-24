@@ -6,15 +6,18 @@ class DefaultsQueryBuilder extends QueryBuilder {
 	
 	private function parseColumn($name, $col, &$output) {
 		$matches = array();
-		$match = preg_match('/DEFAULT ([^ ]+)/i', $col, $matches);
+		$match = preg_match('/DEFAULT (NULL|\d+|".+"|\'.+\')/i', $col, $matches);
+		
 		if($match) {
 			$match = $matches[1];
 			if($match === 'NULL') {
 				$match = null;
-			} else if($match[0] !== '"' && $match[0] !== "'") {
-				$match = (int)$match;
+			} else if($match[0] === '"' || $match[0] === "'") {
+				$quote = $match[0];
+				$match = substr($match, 1, -1);
+				$match = str_replace($quote.$quote, $quote, $match);
 			} else {
-				$match = trim($match, '"\'');
+				$match = (int)$match;
 			}
 			$output[$name] = $match;
 		} else if(strpos($col, 'NOT NULL') === false) {

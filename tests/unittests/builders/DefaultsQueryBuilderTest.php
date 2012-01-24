@@ -37,7 +37,7 @@ class DefaultsQueryBuilderTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
-	public function getColumns_ColumnsHaveNoDefault_WatWat() {
+	public function getColumns_ColumnsHaveNoDefault_NullIsReturnedWhereAllowed() {
 		$defaults = $this->createHelper()
 			->getDefaults('any table');
 		
@@ -52,6 +52,68 @@ class DefaultsQueryBuilderTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array(
 			'a'=> null,
 			'c'=> null,
+		), $rows);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getColumns_ParamsHaveSpaces_DefaultIsReturned() {
+		$defaults = $this->createHelper()
+			->getDefaults('any table');
+		
+		$rows = $defaults->getColumns('CREATE TABLE `test` (
+ `a` varchar(200) DEFAULT "1 2 3",
+ `b` varchar(200) DEFAULT \'4 5 6\'
+) ENGINE=MyISAM');
+		
+		$this->assertEquals(array(
+			'a'=> '1 2 3',
+			'b'=> '4 5 6',
+		), $rows);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getColumns_DefaultIsNotLastOnLine_DefaultIsReturned() {
+		$defaults = $this->createHelper()
+			->getDefaults('any table');
+
+		$rows = $defaults->getColumns('CREATE TABLE `test` (
+ `a` varchar(200) DEFAULT "1 2 3" s,
+ `b` varchar(200) DEFAULT \'4 5 6\'  ,
+ `c` varchar(200) DEFAULT NULL   fd,
+ `d` int DEFAULT 3 5 gf 5
+) ENGINE=MyISAM');
+
+		$this->assertEquals(array(
+			'a'=> '1 2 3',
+			'b'=> '4 5 6',
+			'c'=> null,
+			'd'=> 3
+		), $rows);
+	}
+
+	/**
+	 * @test
+	 */
+	public function getColumns_DefaultHasQuotes_DefaultIsReturned() {
+		$defaults = $this->createHelper()
+			->getDefaults('any table');
+
+		$rows = $defaults->getColumns('CREATE TABLE `test` (
+ `a` varchar(200) DEFAULT "a\'b""",
+ `b` varchar(200) DEFAULT \'a\'\'b"\',
+ `c` varchar(200) DEFAULT \'"\',
+ `d` varchar(200) DEFAULT "\'"
+) ENGINE=MyISAM');
+
+		$this->assertEquals(array(
+			'a'=> 'a\'b"',
+			'b'=> 'a\'b"',
+			'c'=> '"',
+			'd'=> "'"
 		), $rows);
 	}
 
