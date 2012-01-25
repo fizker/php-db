@@ -1,7 +1,10 @@
 <?php
 namespace sql\builders;
 
+require_once(__DIR__.'/../tokenizers/ParamTokenizer.php');
+
 use \sql\Results;
+use \sql\tokenizers\ParamTokenizer;
 
 abstract class QueryBuilder {
 	protected $db, $prefix, $useDebug;
@@ -38,6 +41,19 @@ abstract class QueryBuilder {
 			$table = $this->prefix.'_'.$table;
 		}
 		return $this->db.'.'.$table;
+	}
+	
+	protected function addParams($str, $params) {
+		$tokens = new ParamTokenizer($str);
+		if($tokens->count() !== sizeof($params)) {
+			throw new \InvalidArgumentException('Number of params does not match');
+		}
+		$str = $tokens->next();
+		foreach($params as $param) {
+			$str .= $this->escape($param);
+			$str .= $tokens->next();
+		}
+		return $str;
 	}
 }
 ?>

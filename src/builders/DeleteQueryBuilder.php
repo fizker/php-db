@@ -9,7 +9,11 @@ class DeleteBuilder extends QueryBuilder {
 		return $this;
 	}
 	
-	public function where($where) {
+	public function where($where, $param = false) {
+		if($param != false) {
+			$params = array_slice(func_get_args(), 1);
+			$where = $this->addParams($where, $params);
+		}
 		$this->where = $where;
 		return $this;
 	}

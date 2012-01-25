@@ -50,6 +50,20 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('DELETE FROM db.table WHERE a=b', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function where_ParamsAdded_ParamsUsed() {
+		$db = $this->createHelper();
+		
+		$result = $db
+			->delete()
+			->from('table')
+			->where('a=?', 2)
+			->toString();
+		
+		$this->assertEquals('DELETE FROM db.table WHERE a="2"', $result);
+	}
 
 	public function createHelper() {
 		$db = new SQLHelper(array(

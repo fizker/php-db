@@ -73,11 +73,72 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals('any query', $result);
 	}
+
+	/**
+	 * @test
+	 */
+	public function update_WhereUsesParams_ParamsAreInjected() {
+		$db = new TestableQueryBuilder('db');
+		
+		$result = $db->addParams('c=?', array('d'));
+		
+		$this->assertEquals('c="d"', $result);
+	}
+
+	/**
+	 * @test
+	 * @expectedException InvalidArgumentException
+	 */
+	public function addParams_TooFewParams_Throws() {
+		$db = new TestableQueryBuilder('db');
+		
+		$result = $db->addParams('c=?', array());
+	}
+
+	/**
+	 * @test
+	 * @expectedException InvalidArgumentException
+	 */
+	public function addParams_TooManyParams_Throws() {
+		$db = new TestableQueryBuilder('db');
+		
+		$result = $db->addParams('c=?', array(1,2));
+	}
+
+	/**
+	 * @test
+	 */
+	public function addParams_StringContainsQuotedQuestMark_ParamIsInsertedCorrectly() {
+		$db = new TestableQueryBuilder('db');
+		
+		$result = $db->addParams('b="?" AND c=?', array(2));
+		
+		$this->assertEquals('b="?" AND c="2"', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function addParams_ComplexString_ParamsInsertedCorrectly() {
+		$db = new TestableQueryBuilder('db');
+		
+		$result = $db->addParams(
+			'?=2 AND b="?" AND c=? AND d=?', 
+			array(2, 3, 4)
+		);
+		
+		$this->assertEquals(
+			'"2"=2 AND b="?" AND c="3" AND d="4"', 
+			$result);
+	}
 }
 
 class TestableQueryBuilder extends QueryBuilder {
 	public function escape($str) {
 		return parent::escape($str);
+	}
+	public function addParams($str, $params) {
+		return parent::addParams($str, $params);
 	}
 	
 	public $query;

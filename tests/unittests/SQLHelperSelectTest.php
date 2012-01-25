@@ -117,6 +117,21 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('SELECT a FROM db.b ORDER BY a DESC', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function where_ParamsAdded_ParamsUsed() {
+		$db = $this->createHelper();
+		
+		$result = $db
+			->select('*')
+			->from('table')
+			->where('a=?', 2)
+			->toString();
+		
+		$this->assertContains('WHERE a="2"', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',

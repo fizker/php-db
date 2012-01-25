@@ -105,7 +105,22 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$this->assertEquals('UPDATE db.a SET `a`=NULL', $result);
 	}
-	
+
+	/**
+	 * @test
+	 */
+	public function where_ParamsAdded_ParamsUsed() {
+		$db = $this->createHelper();
+		
+		$result = $db
+			->update('table')
+			->set(array('a'=> 'b'))
+			->where('c=?', 2)
+			->toString();
+		
+		$this->assertContains('WHERE c="2"', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',
