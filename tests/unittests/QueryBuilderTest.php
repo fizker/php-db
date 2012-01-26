@@ -19,7 +19,18 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->escape('\"');
 		
-		$this->assertEquals('"\\\\\""', $result);
+		$this->assertEquals('"\\\\"""', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function escape_ValueContainsQuote_QuoteIsEscaped() {
+		$db = new TestableQueryBuilder('a');
+		
+		$result = $db->escape('ab"c');
+		
+		$this->assertEquals('"ab""c"', $result);
 	}
 
 	/**

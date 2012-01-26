@@ -51,7 +51,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->insert(array('a'=>'b"c'))->into('table')->toString();
 		
-		$this->assertEquals('INSERT INTO db.table (`a`) VALUES ("b\"c")', $result);
+		$this->assertEquals('INSERT INTO db.table (`a`) VALUES ("b""c")', $result);
 	}
 	
 	/**

@@ -55,7 +55,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->update('table')->set(array('a'=> 'b"c'))->toString();
 		
-		$this->assertEquals('UPDATE db.table SET `a`="b\"c"', $result);
+		$this->assertEquals('UPDATE db.table SET `a`="b""c"', $result);
 	}
 	
 	/**

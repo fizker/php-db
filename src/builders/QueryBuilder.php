@@ -32,8 +32,8 @@ abstract class QueryBuilder {
 			return 'NULL';
 		}
 		return '"'.str_replace(
-			array('\"',		'"'), 
-			array('\\\"',	'\"'), 
+			array('\\',		'"'), 
+			array('\\\\',	'""'), 
 			$str).'"';
 	}
 	protected function prefixTable($table) {

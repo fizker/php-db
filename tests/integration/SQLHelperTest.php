@@ -126,6 +126,18 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(2, $result->getLastId());
 	}
 
+	/**
+	 * @test
+	 */
+	public function insert_RowContainsQuotes_RowIsInsertedCorrectly() {
+		$db = $this->createHelper();
+		// We insert this row to ensure that the next auto-id should be 2
+		$db->insert(array('id'=>1,'name'=>'a"b\"c'."'d\'e"))->into('php_integration_tests')->exec();
+		
+		$row = mysql_fetch_assoc(mysql_query('select name from php_integration_tests where id=1'));
+		
+		$this->assertEquals('a"b\"c'."'d\'e", $row['name']);
+	}
 
 	/**
 	 * @test
