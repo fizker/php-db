@@ -2,29 +2,53 @@
 namespace sql\tokenizers;
 
 class QuoteTokenizer {
-	private $str, $index;
-	public function __construct($str) {
+	private $str, $index, $chars;
+	public function __construct($str, $chars = array( array('"'), array("'") )) {
 		$this->str = $str;
 		$this->index = 0;
-	/*
-		$d = strpos($str, '"', $start);
-		$s = strpos($str, "'", $start);
-	*/
+		$this->chars = array_map(function($ch) {
+			if(sizeof($ch) === 1) {
+				$ch[1] = $ch[0];
+			}
+			return $ch;
+		}, $chars);
 	}
 	
 	public function next() {
-		$d = strpos($this->str, '"', $this->index);
-		$s = strpos($this->str, "'", $this->index);
-
-		$index = $s;
-		$c = "'";
-		if($d !== false) {
-			if($s === false || $d < $s) {
-				$c = '"';
-				$index = $d;
+		$str = $this->str;
+		$index = $this->index;
+		$next = array_map(function($char) use ($str, $index) {
+			return array(
+				'char'=> $char,
+				'pos'=> strpos($str, $char[0], $index)
+			);
+		}, $this->chars);
+		$next = array_reduce($next, function($a, $b) {
+			$ap = false;
+			$bp = false;
+			if($a !== null) {
+				$ap = $a['pos'];
 			}
-		}
-		if($index !== false) {
+			if($ap === false) {
+				$ap = PHP_INT_MAX;
+			}
+			if($b !== null) {
+				$bp = $b['pos'];
+			}
+			if($bp === false) {
+				$bp = PHP_INT_MAX;
+			}
+			
+			return $ap < $bp
+				? $a
+				: $b;
+		});
+		if($next !== null) {
+			$index = $next['pos'];
+			if($index === false) {
+				return null;
+			}
+			$c = $next['char'][1];
 			$end = $index-1;
 			do {
 				$end = strpos($this->str, $c, $end+2);
@@ -32,7 +56,7 @@ class QuoteTokenizer {
 			
 			$this->index = $end + 1;
 			
-			return new Quote(substr($this->str, $index+1, $end - $index - 1), $c, $index);
+			return new Quote(substr($this->str, $index+1, $end - $index - 1), $next['char'][0], $index);
 		}
 		return null;
 	}

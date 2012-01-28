@@ -99,5 +99,59 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 		$this->assertSame('', $tokenizer->next(), 'Before first param');
 		$this->assertSame(' abc "?" ', $tokenizer->next(), 'Before second param');
 	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_CharIsAltered_TokenizesCorrectly() {
+		$tokenizer = new ParamTokenizer(', abc "," , ab ,', ',');
+		
+		$this->assertSame('', $tokenizer->next(), 'Before first param');
+		$this->assertSame(' abc "," ', $tokenizer->next(), 'Before second param');
+		$this->assertSame(' ab ', $tokenizer->next(), 'Before last param');
+		$this->assertSame('', $tokenizer->next(), 'After last param');
+		$this->assertSame(false, $tokenizer->next(), 'No more tokens');
+	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_QuotesAreAltered_TokenizesCorrectly() {
+		$tokenizer = new ParamTokenizer(
+			', abc (,) , ab ,'
+			, ','
+			, array( array('(',')') ));
+		
+		$this->assertSame('', $tokenizer->next(), 'Before first param');
+		$this->assertSame(' abc (,) ', $tokenizer->next(), 'Before second param');
+		$this->assertSame(' ab ', $tokenizer->next(), 'Before last param');
+		$this->assertSame('', $tokenizer->next(), 'After last param');
+		$this->assertSame(false, $tokenizer->next(), 'No more tokens');
+	}
+
+	/**
+	 * @test
+	 */
+	public function next_StringContainsTwoQuotesBeforeToken_ReturnsCorrectly() {
+		$tokenizer = new ParamTokenizer('abc "?" "?"');
+		
+		$result = $tokenizer->next();
+		
+		$this->assertSame('abc "?" "?"', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_UsedForColumns_TokenizesCorrectly() {
+		$tokenizer = new ParamTokenizer(
+			'`a` varchar(1) DEFAULT ","'
+			, ','
+			, array( array('(',')'), array('"'), array("'") )
+		);
+		
+		$this->assertSame('`a` varchar(1) DEFAULT ","', $tokenizer->next(), 'The only param');
+		$this->assertSame(false, $tokenizer->next(), 'No more tokens');
+	}
 }
 ?>

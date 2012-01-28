@@ -137,5 +137,74 @@ class QuoteTokenizerTest extends PHPUnit_Framework_TestCase {
 		$expected = new Quote('def', '"', 4);
 		$this->assertEquals($expected, $quote);
 	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_DifferentQuoteCharsGiven_NewCharsRespected() {
+		$quotes = new QuoteTokenizer('abc "d" \'e\' (f) ghi', array(
+			array('(',')'), array('"')
+		));
+		
+		$expected = new Quote('d', '"', 4);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = new Quote('f', '(', 12);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = null;
+		$this->assertEquals($expected, $quotes->next());
+	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_MoreThanThreeQuoteChars_TokenizesCorrectly() {
+		$quotes = new QuoteTokenizer('abc "d" \'e\' (f) ghi', array(
+			array('(',')'), array('"'), array("'")
+		));
+		
+		$expected = new Quote('d', '"', 4);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = new Quote('e', "'", 8);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = new Quote('f', '(', 12);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = null;
+		$this->assertEquals($expected, $quotes->next());
+	}
+
+	/**
+	 * @test
+	 */
+	public function ctor_UsedForColumns_TokenizesCorrectly() {
+		$quotes = new QuoteTokenizer(
+			'`a` varchar(1) DEFAULT ",",
+			`b` varchar(1) DEFAULT \',\',
+			`c` enum("1", "2")'
+			, array( array('(',')'), array('"'), array("'") )
+		);
+		
+		$expected = new Quote('1', '(', 11);
+		$this->assertEquals($expected, $quotes->next());
+		
+		$expected = new Quote(',', '"', 23);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = new Quote('1', '(', 42);
+		$this->assertEquals($expected, $quotes->next());
+		
+		$expected = new Quote(',', "'", 54);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = new Quote('"1", "2"', '(', 70);
+		$this->assertEquals($expected, $quotes->next());
+
+		$expected = null;
+		$this->assertEquals($expected, $quotes->next());
+	}
 }
 ?>

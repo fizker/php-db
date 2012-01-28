@@ -4,15 +4,20 @@ namespace sql\tokenizers;
 require_once(__DIR__.'/QuoteTokenizer.php');
 
 class ParamTokenizer {
-	private $str, $tokens;
-	public function __construct($str) {
+	private $str, $tokens, $char, $quoteChars;
+	public function __construct($str
+		, $char = '?'
+		, $quoteChars = array( array('"'), array("'") ))
+	{
 		$this->str = $str;
+		$this->char = $char;
+		$this->quoteChars = $quoteChars;
 		$this->reset();
 	}
 	
 	private function getNextTokenAfterQuote($str, $quote, $prev) {
 		$len = strlen($str);
-		$nextToken = strpos($str, '?', $prev);
+		$nextToken = strpos($str, $this->char, $prev);
 		if($nextToken === false) {
 			$nextToken = $len;
 		}
@@ -24,7 +29,7 @@ class ParamTokenizer {
 		while($nextToken > $quote->start
 			&& $nextToken < $quote->end)
 		{
-			$nextToken = strpos($str, '?', $nextToken+1);
+			$nextToken = strpos($str, $this->char, $nextToken+1);
 			if($nextToken === false) {
 				$nextToken = $len;
 			}
@@ -33,16 +38,23 @@ class ParamTokenizer {
 	}
 	private function tokenize($str) {
 		$tokens = array();
-		$quotes = new QuoteTokenizer($str);
+		$quotes = new QuoteTokenizer($str, $this->quoteChars);
 		$quote = $quotes->next();
 		
 		$len = strlen($str);
 		$prev = 0;
 		do {
-			$nextToken = $this->getNextTokenAfterQuote($str, $quote, $prev);
-			if($quote && $quote->end < $nextToken) {
-				$quote = $quotes->next();
-			}
+			$p = $prev;
+			do {
+				$nextToken = $this->getNextTokenAfterQuote($str, $quote, $p);
+				if($quote 
+					&& ($quote->start < $nextToken
+					|| $quote->end < $nextToken))
+				{
+					$p = $quote->end;
+					$quote = $quotes->next();
+				}
+			} while($quote && $quote->start < $nextToken);
 			
 			$token = substr($str, $prev, $nextToken - $prev);
 			if($token === false) {

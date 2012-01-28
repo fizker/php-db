@@ -7,7 +7,6 @@ class DefaultsQueryBuilder extends QueryBuilder {
 	private function parseColumn($name, $col, &$output) {
 		$matches = array();
 		$match = preg_match('/DEFAULT (NULL|\d+|".+"|\'.+\')/i', $col, $matches);
-		
 		if($match) {
 			$match = $matches[1];
 			if($match === 'NULL') {
@@ -24,12 +23,25 @@ class DefaultsQueryBuilder extends QueryBuilder {
 			$output[$name] = null;
 		}
 	}
+	
+	public function splitIntoColumns($cols) {
+		$return = array();
+		$tokenizer = new \sql\tokenizers\ParamTokenizer(
+			$cols
+			, ','
+			, array( array('"'), array("'"), array('(',')') ));
+		
+		while($col = $tokenizer->next()) {
+			$return[] = trim($col);
+		}
+		return $return;
+	}
 
 	public function getColumns($input) {
 		$first = strpos($input, '(')+1;
 		$last = strrpos($input, ')');
 		$cols = substr($input, $first, $last - $first);
-		$cols = explode(',', $cols);
+		$cols = $this->splitIntoColumns($cols);
 		
 		$defaults = array();
 		foreach($cols as $col) {
