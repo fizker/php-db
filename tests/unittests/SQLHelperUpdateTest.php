@@ -121,6 +121,20 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('WHERE c="2"', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function set_LiteralValues_LiteralsAreNotEscaped() {
+		$db = $this->createHelper();
+		
+		$result = $db
+			->update('table')
+			->set(array('a'=> 'A1', 'b'=> new \sql\LiteralValue('B2')))
+			->toString();
+		
+		$this->assertContains('`a`="A1", `b`=B2', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',

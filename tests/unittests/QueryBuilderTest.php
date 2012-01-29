@@ -58,6 +58,17 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
+	public function escape_LiteralValue_ValueIsNotEscaped() {
+		$builder = new TestableQueryBuilder('a');
+		
+		$result = $builder->escape(new \sql\LiteralValue('abc'));
+		
+		$this->assertEquals('abc', $result);
+	}
+
+	/**
+	 * @test
+	 */
 	public function toString_execIsCalled_ShouldCallToString() {
 		$debugMode = true;
 		$fakeBuilder = $this->getMockBuilder('\sql\builders\QueryBuilder')

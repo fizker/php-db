@@ -26,11 +26,11 @@ class InsertBuilder extends QueryBuilder {
 	public function toString() {
 		$cols = '`'.implode('`, `', $this->keys).'`';
 		$vals = array();
+		$self = $this;
 		foreach($this->values as $row) {
-			$tmpvals = array();
-			foreach($row as $val) {
-				$tmpvals[] = $this->escape($val);
-			}
+			$tmpvals = array_map(function($val) use ($self) {
+				return $self->escape($val);
+			}, $row);
 			$vals[] = '('. implode(', ', $tmpvals) .')';
 		}
 		$table = $this->prefixTable($this->table);

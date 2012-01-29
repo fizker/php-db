@@ -106,6 +106,19 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('INSERT INTO db.table (`a`, `b`) VALUES ("A1", "B1"), ("A2", "B2")', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function insert_LiteralValues_LiteralsAreNotEscaped() {
+		$db = $this->createHelper();
+		
+		$result = $db->insert(array(
+			array('a'=> 'A1', 'b'=> new \sql\LiteralValue('B1'))
+		))->into('table')->toString();
+		
+		$this->assertContains('("A1", B1)', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',

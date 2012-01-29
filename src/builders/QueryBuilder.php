@@ -31,6 +31,9 @@ abstract class QueryBuilder {
 		if($str === null) {
 			return 'NULL';
 		}
+		if(is_object($str)) {
+			return $str->toString();
+		}
 		return '"'.str_replace(
 			array('\\',		'"'), 
 			array('\\\\',	'""'), 
