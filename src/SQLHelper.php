@@ -32,14 +32,17 @@ class SQLHelper {
 		$creds = $this->credentials;
 		mysql_connect('localhost', $creds['user'], $creds['pass']);
 		mysql_select_db($this->db);
+		return $this;
 	}
 	
 	public function setDatabase($db) {
 		$this->db = $db;
+		return $this;
 	}
 	
 	public function setPrefix($prefix) {
 		$this->prefix = $prefix;
+		return $this;
 	}
 	
 	public function select($what) {
@@ -72,7 +75,5 @@ class SQLHelper {
 		$b->forTable($table);
 		return $b;
 	}
-	
-	public function setDebug() {}
 }
 ?>

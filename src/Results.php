@@ -20,8 +20,12 @@ class Results {
 	public function getLastId() {
 		return $this->lastId;
 	}
-	
+
 	public function getRow() {
+		return $this->nextRow();
+	}
+
+	public function nextRow() {
 		if($this->array) {
 			$el = current($this->array);
 			next($this->array);
@@ -29,7 +33,7 @@ class Results {
 		}
 		return mysql_fetch_assoc($this->sql);
 	}
-	
+
 	public function toArray() {
 		$array = array();
 		while($row = $this->getRow()) {
