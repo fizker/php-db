@@ -132,6 +132,36 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('WHERE a="2"', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function group_columnAdded_groupByAttached() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('table')
+			->group('a')
+			->toString();
+
+		$this->assertContains('GROUP BY `a`', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function group_multipleColumnsAdded_groupByAttachedCorrectly() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('table')
+			->group('a', 'b')
+			->toString();
+
+		$this->assertContains('GROUP BY `a`, `b`', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',
@@ -142,4 +172,3 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		return $db;
 	}
 }
-?>

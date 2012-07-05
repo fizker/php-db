@@ -2,8 +2,8 @@
 namespace sql\builders;
 
 class SelectBuilder extends QueryBuilder {
-	private $what, $from, $where, $order;
-	
+	private $what, $from, $where, $order, $group;
+
 	public function select($w) {
 		$what = array();
 		if(is_array($w)) {
@@ -19,24 +19,26 @@ class SelectBuilder extends QueryBuilder {
 			$what = $w;
 		}
 		$this->what = $what;
-		
+
 		return $this;
 	}
+
 	public function from($f) {
 		if(!is_array($f)) {
 			$f = array($f);
 		}
-		
+
 		$from = array();
 		foreach($f as $f) {
 			$f = $this->prefixTable($f);
 			$from[] = $f;
 		}
 		$from = implode(', ', $from);
-		
+
 		$this->from = $from;
 		return $this;
 	}
+
 	public function where($where, $param = false) {
 		if($param != false) {
 			$params = array_slice(func_get_args(), 1);
@@ -45,18 +47,30 @@ class SelectBuilder extends QueryBuilder {
 		$this->where = $where;
 		return $this;
 	}
+
 	public function order($order) {
 		$this->order = $order;
 		return $this;
 	}
+
+	public function group($group) {
+		$group = implode(func_get_args(), '`, `');
+		$this->group = "`$group`";
+		return $this;
+	}
+
 	public function toString() {
 		$query = "SELECT $this->what FROM $this->from";
+
 		if($this->where)
 			$query .= " WHERE $this->where";
+
+		if($this->group)
+			$query .= ' GROUP BY '.$this->group;
+
 		if($this->order)
 			$query .= ' ORDER BY '.$this->order;
-		
+
 		return $query;
 	}
 }
-?>
