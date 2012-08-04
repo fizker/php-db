@@ -1,5 +1,5 @@
 SQL Helper for PHP and MySQL
-==================
+============================
 
 The purpose of this small piece of code is to have a simple sql-helper that
 makes writing queries faster, simpler and more secure.
@@ -13,6 +13,15 @@ designed to resemble the sql-syntax. This means that it should be easy to see
 what is going on even when looking at the code some time later, whilst still
 retaining some higher-level functions.
 
+Running the tests
+-----------------
+
+To run the tests, first execute `install-tests` to get the dependencies installed.
+
+Then simply execute `runTests.php`.
+
+
+-----
 
 __NOTE:__
 
