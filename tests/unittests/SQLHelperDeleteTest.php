@@ -30,7 +30,7 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->delete()->from($table)->toString();
 		
-		$this->assertEquals("DELETE FROM db.$table", $result);
+		$this->assertEquals("DELETE FROM `db`.$table", $result);
 	}
 	public function provider_delete_TableIsGiven_TableIsDeleted() {
 		return array(
@@ -47,7 +47,7 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->delete()->from('table')->where('a=b')->toString();
 		
-		$this->assertEquals('DELETE FROM db.table WHERE a=b', $result);
+		$this->assertEquals('DELETE FROM `db`.table WHERE a=b', $result);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 			->where('a=?', 2)
 			->toString();
 		
-		$this->assertEquals('DELETE FROM db.table WHERE a="2"', $result);
+		$this->assertEquals('DELETE FROM `db`.table WHERE a="2"', $result);
 	}
 
 	public function createHelper() {

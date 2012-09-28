@@ -19,7 +19,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select('a')->from('b')->toString();
 		
-		$this->assertEquals('SELECT a FROM db.b', $result);
+		$this->assertEquals('SELECT a FROM `db`.b', $result);
 	}
 
 	/**
@@ -30,7 +30,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select(array('a'=>'A', 'B'=>'b'))->from('b')->toString();
 		
-		$this->assertEquals('SELECT A AS a, b AS B FROM db.b', $result);
+		$this->assertEquals('SELECT A AS a, b AS B FROM `db`.b', $result);
 	}
 
 	/**
@@ -41,7 +41,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select(array('a','b'))->from('c')->toString();
 		
-		$this->assertEquals('SELECT a, b FROM db.c', $result);
+		$this->assertEquals('SELECT a, b FROM `db`.c', $result);
 	}
 
 	/**
@@ -52,7 +52,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select(array('a','B'=>'b'))->from('c')->toString();
 		
-		$this->assertEquals('SELECT a, b AS B FROM db.c', $result);
+		$this->assertEquals('SELECT a, b AS B FROM `db`.c', $result);
 	}
 
 	/**
@@ -63,7 +63,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select('a')->from(array('b', 'c'))->toString();
 		
-		$this->assertEquals('SELECT a FROM db.b, db.c', $result);
+		$this->assertEquals('SELECT a FROM `db`.b, `db`.c', $result);
 	}
 
 	/**
@@ -80,9 +80,9 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	}
 	public function provider_select_PrefixIsSet_TablesArePrefixed() {
 		return array(
-			array('b', 'db.prefix_b'),
-			array(array('b', 'c'), 'db.prefix_b, db.prefix_c'),
-			array(array('b', 'prefix_c'), 'db.prefix_b, db.prefix_c')
+			array('b', '`db`.prefix_b'),
+			array(array('b', 'c'), '`db`.prefix_b, `db`.prefix_c'),
+			array(array('b', 'prefix_c'), '`db`.prefix_b, `db`.prefix_c')
 		);
 	}
 
@@ -96,7 +96,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		$db->setDatabase($database);
 		$result = $db->select('a')->from('b')->toString();
 		
-		$this->assertEquals("SELECT a FROM $database.b", $result);
+		$this->assertEquals("SELECT a FROM `$database`.b", $result);
 	}
 	public function provider_select_DatabaseIsSet_TablesArePrefixed() {
 		return array(
@@ -114,7 +114,7 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->select('a')->from('b')->order('a DESC')->toString();
 		
-		$this->assertEquals('SELECT a FROM db.b ORDER BY a DESC', $result);
+		$this->assertEquals('SELECT a FROM `db`.b ORDER BY a DESC', $result);
 	}
 
 	/**

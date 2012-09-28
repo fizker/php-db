@@ -20,7 +20,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->insert(array($col=>$value))->into('c')->toString();
 		
-		$this->assertEquals("INSERT INTO db.c (`$col`) VALUES (\"$value\")", $result);
+		$this->assertEquals("INSERT INTO `db`.c (`$col`) VALUES (\"$value\")", $result);
 	}
 	public function provider_insert_SingleValue_InsertsSingleValue() {
 		return array(
@@ -40,7 +40,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 			'c'=>'d'
 		))->into('table')->toString();
 		
-		$this->assertEquals('INSERT INTO db.table (`a`, `c`) VALUES ("b", "d")', $result);
+		$this->assertEquals('INSERT INTO `db`.table (`a`, `c`) VALUES ("b", "d")', $result);
 	}
 
 	/**
@@ -51,7 +51,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->insert(array('a'=>'b"c'))->into('table')->toString();
 		
-		$this->assertEquals('INSERT INTO db.table (`a`) VALUES ("b""c")', $result);
+		$this->assertEquals('INSERT INTO `db`.table (`a`) VALUES ("b""c")', $result);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$db->setDatabase($database);
 		$result = $db->insert(array('a'=>'b'))->into('table')->toString();
 		
-		$this->assertEquals('INSERT INTO '.$database.'.table (`a`) VALUES ("b")', $result);
+		$this->assertEquals('INSERT INTO `'.$database.'`.table (`a`) VALUES ("b")', $result);
 	}
 	public function provider_insert_DatabaseIsSet_DatabaseIsUsed() {
 		return array(
@@ -83,7 +83,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$db->setPrefix('prefix');
 		$result = $db->insert(array('a'=>'b'))->into($table)->toString();
 		
-		$this->assertEquals('INSERT INTO db.'.$expected.' (`a`) VALUES ("b")', $result);
+		$this->assertEquals('INSERT INTO `db`.'.$expected.' (`a`) VALUES ("b")', $result);
 	}
 	public function provider_insert_PrefixIsSet_PrefixIsUsed() {
 		return array(
@@ -103,7 +103,7 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 			array('a'=> 'A2', 'b'=> 'B2')
 		))->into('table')->toString();
 		
-		$this->assertEquals('INSERT INTO db.table (`a`, `b`) VALUES ("A1", "B1"), ("A2", "B2")', $result);
+		$this->assertEquals('INSERT INTO `db`.table (`a`, `b`) VALUES ("A1", "B1"), ("A2", "B2")', $result);
 	}
 
 	/**

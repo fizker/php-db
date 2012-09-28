@@ -14,6 +14,17 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
+	public function prefixTable_databaseIsSet_databaseIsQuoted() {
+		$db = new TestableQueryBuilder('a');
+
+		$result = $db->prefixTable('b');
+
+		$this->assertEquals('`a`.b', $result);
+	}
+
+	/**
+	 * @test
+	 */
 	public function escape_ValueWithEscapedQuote_ValueShouldBeDoubleEscaped() {
 		$db = new TestableQueryBuilder('a');
 		
@@ -161,6 +172,10 @@ class TestableQueryBuilder extends QueryBuilder {
 	}
 	public function addParams($str, $params) {
 		return parent::addParams($str, $params);
+	}
+
+	public function prefixTable($table) {
+		return parent::prefixTable($table);
 	}
 	
 	public $query;

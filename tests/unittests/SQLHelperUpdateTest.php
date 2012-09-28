@@ -23,7 +23,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			$col=>$val
 		))->toString();
 		
-		$this->assertEquals("UPDATE db.table SET `$col`=\"$val\"", $result);
+		$this->assertEquals("UPDATE `db`.table SET `$col`=\"$val\"", $result);
 	}
 	public function provider_update_SingleValueNoWhere_ValueIsSet() {
 		return array(
@@ -44,7 +44,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			'c'=>'C'
 		))->toString();
 		
-		$this->assertEquals('UPDATE db.table SET `a`="A", `b`="B", `c`="C"', $result);
+		$this->assertEquals('UPDATE `db`.table SET `a`="A", `b`="B", `c`="C"', $result);
 	}
 
 	/**
@@ -55,7 +55,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->update('table')->set(array('a'=> 'b"c'))->toString();
 		
-		$this->assertEquals('UPDATE db.table SET `a`="b""c"', $result);
+		$this->assertEquals('UPDATE `db`.table SET `a`="b""c"', $result);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			->set(array('a'=>'b'))
 			->where('a=b')->toString();
 		
-		$this->assertEquals('UPDATE db.table SET `a`="b" WHERE a=b', $result);
+		$this->assertEquals('UPDATE `db`.table SET `a`="b" WHERE a=b', $result);
 	}
 
 	/**
@@ -81,7 +81,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		$db->setPrefix('prefix');
 		$result = $db->update('table')->set(array('a'=>'b'))->toString();
 		
-		$this->assertEquals('UPDATE db.prefix_table SET `a`="b"', $result);
+		$this->assertEquals('UPDATE `db`.prefix_table SET `a`="b"', $result);
 	}
 
 	/**
@@ -92,7 +92,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->update('a')->set(array('a'=>'b'))->toString();
 		
-		$this->assertEquals('UPDATE db.a SET `a`="b"', $result);
+		$this->assertEquals('UPDATE `db`.a SET `a`="b"', $result);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		
 		$result = $db->update('a')->set(array('a'=>null))->toString();
 		
-		$this->assertEquals('UPDATE db.a SET `a`=NULL', $result);
+		$this->assertEquals('UPDATE `db`.a SET `a`=NULL', $result);
 	}
 
 	/**

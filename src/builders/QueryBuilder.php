@@ -43,7 +43,7 @@ abstract class QueryBuilder {
 		if($this->prefix && strpos($table, $this->prefix) !== 0) {
 			$table = $this->prefix.'_'.$table;
 		}
-		return $this->db.'.'.$table;
+		return '`'.$this->db.'`.'.$table;
 	}
 	
 	protected function addParams($str, $params) {
