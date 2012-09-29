@@ -19,61 +19,63 @@ use \sql\builders\InsertBuilder;
 use \sql\builders\DefaultsQueryBuilder;
 
 class SQLHelper {
-	protected $prefix, $db;
-	
-	public function __construct($credentials) {
-		if(isset($credentials['db']))
-			$this->setDatabase($credentials['db']);
-		$this->credentials = $credentials;
-		$this->prefix = '';
+	public function __construct($options) {
+		$this->options = array_merge(
+		  array('prefix'=> '', 'host'=> 'localhost')
+		, $options
+		);
 	}
 	
 	public function connect() {
-		$creds = $this->credentials;
-		mysql_connect('localhost', $creds['user'], $creds['pass']);
-		mysql_select_db($this->db);
+		$options = $this->options;
+		mysql_connect('localhost', $options['user'], $options['pass']);
+		mysql_select_db($options['db']);
 		return $this;
 	}
 	
 	public function setDatabase($db) {
-		$this->db = $db;
+		$this->options['db'] = $db;
 		return $this;
 	}
-	
+
+	public function setHost($host) {
+		$this->options['host'] = $host;
+		return $this;
+	}
+
 	public function setPrefix($prefix) {
-		$this->prefix = $prefix;
+		$this->options['prefix'] = $prefix;
 		return $this;
 	}
 	
 	public function select($what) {
-		$s = new SelectBuilder($this->db, $this->prefix);
+		$s = new SelectBuilder($this->options['db'], $this->options['prefix']);
 		return $s->select($what);
 	}
 	
 	public function insert($data) {
-		$i = new InsertBuilder($this->db, $this->prefix);
+		$i = new InsertBuilder($this->options['db'], $this->options['prefix']);
 		return $i->insert($data);
 	}
 	
 	public function update($table) {
-		$u = new UpdateBuilder($this->db, $this->prefix);
+		$u = new UpdateBuilder($this->options['db'], $this->options['prefix']);
 		return $u->update($table);
 	}
 	
 	public function delete() {
-		$d = new DeleteBuilder($this->db, $this->prefix);
+		$d = new DeleteBuilder($this->options['db'], $this->options['prefix']);
 		return $d;
 	}
 	
 	public function query($query) {
-		$q = new DirectQueryBuilder($this->db);
+		$q = new DirectQueryBuilder($this->options['db']);
 		return $q->query($query);
 	}
 	
 	public function getDefaults($table) {
-		$b = new DefaultsQueryBuilder($this->db, $this->prefix);
+		$b = new DefaultsQueryBuilder($this->options['db'], $this->options['prefix']);
 		$b->forTable($table);
 		return $b;
 	}
 }
-?>
