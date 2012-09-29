@@ -14,6 +14,26 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
+	public function select_allOptionsAreUsed_queryIsValid() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('a')
+			->from('b')
+			->where('c')
+			->limit(1)
+			->order('e')
+			->group('f')
+			->toString();
+
+		$this->assertEquals(
+			  'SELECT a FROM `db`.b WHERE c GROUP BY `f` ORDER BY e LIMIT 1'
+			, $result);
+	}
+
+	/**
+	 * @test
+	 */
 	public function select_WhereClauseMissing_QueryShouldMatch() {
 		$db = $this->createHelper();
 		
@@ -160,6 +180,43 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 			->toString();
 
 		$this->assertContains('GROUP BY `a`, `b`', $result);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider provider_limit_singleNumber_limitAdded
+	 */
+	public function limit_singleNumber_limitAdded($limit) {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('table')
+			->limit($limit)
+			->toString();
+
+		$this->assertEquals('SELECT * FROM `db`.table LIMIT '.$limit, $result);
+	}
+	public function provider_limit_singleNumber_limitAdded() {
+		return array(
+		         array(1)
+		       , array(2)
+		       );
+	}
+
+	/**
+	 * @test
+	 */
+	public function limit_twoNumbers_limitAdded() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('table')
+			->limit(1, 2)
+			->toString();
+
+		$this->assertEquals('SELECT * FROM `db`.table LIMIT 1,2', $result);
 	}
 
 	public function createHelper() {
