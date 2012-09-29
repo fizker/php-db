@@ -184,9 +184,9 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
-	 * @dataProvider provider_limit_singleDigit_limitAdded
+	 * @dataProvider provider_limit_singleNumber_limitAdded
 	 */
-	public function limit_singleDigit_limitAdded($limit) {
+	public function limit_singleNumber_limitAdded($limit) {
 		$db = $this->createHelper();
 
 		$result = $db
@@ -197,11 +197,26 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals('SELECT * FROM `db`.table LIMIT '.$limit, $result);
 	}
-	public function provider_limit_singleDigit_limitAdded() {
+	public function provider_limit_singleNumber_limitAdded() {
 		return array(
 		         array(1)
 		       , array(2)
 		       );
+	}
+
+	/**
+	 * @test
+	 */
+	public function limit_twoNumbers_limitAdded() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('table')
+			->limit(1, 2)
+			->toString();
+
+		$this->assertEquals('SELECT * FROM `db`.table LIMIT 1,2', $result);
 	}
 
 	public function createHelper() {

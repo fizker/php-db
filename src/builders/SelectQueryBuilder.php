@@ -59,8 +59,8 @@ class SelectBuilder extends QueryBuilder {
 		return $this;
 	}
 
-	public function limit($limit) {
-		$this->limit = $limit;
+	public function limit($a, $b = 0) {
+		$this->limit = array($a, $b);
 		return $this;
 	}
 
@@ -76,8 +76,12 @@ class SelectBuilder extends QueryBuilder {
 		if($this->order)
 			$query .= ' ORDER BY '.$this->order;
 
-		if($this->limit)
-			$query .= ' LIMIT '.$this->limit;
+		if($this->limit) {
+			$query .= ' LIMIT '.$this->limit[0];
+			if($this->limit[1]) {
+				$query .= ','.$this->limit[1];
+			}
+		}
 
 		return $query;
 	}
