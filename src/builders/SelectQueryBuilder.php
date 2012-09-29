@@ -2,7 +2,7 @@
 namespace sql\builders;
 
 class SelectBuilder extends QueryBuilder {
-	private $what, $from, $where, $order, $group;
+	private $what, $from, $where, $order, $group, $limit;
 
 	public function select($w) {
 		$what = array();
@@ -59,6 +59,11 @@ class SelectBuilder extends QueryBuilder {
 		return $this;
 	}
 
+	public function limit($limit) {
+		$this->limit = $limit;
+		return $this;
+	}
+
 	public function toString() {
 		$query = "SELECT $this->what FROM $this->from";
 
@@ -70,6 +75,9 @@ class SelectBuilder extends QueryBuilder {
 
 		if($this->order)
 			$query .= ' ORDER BY '.$this->order;
+
+		if($this->limit)
+			$query .= ' LIMIT '.$this->limit;
 
 		return $query;
 	}
