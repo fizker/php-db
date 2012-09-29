@@ -10,7 +10,7 @@ use \sql\builders\QueryBuilder;
  * It is expected to have a mysql database at localhost
  * called test, with a user called test-user and a password test-password.
  * It will remove any table named php_integration_tests if it exists.
- * 
+ *
  * These are the only external requirements.
  */
 class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
@@ -26,7 +26,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		)');
 		mysql_close($link);
 	}
-	
+
 	/**
 	 * This is a smoke test to ensure that if the db-connection fails, 
 	 * only one error will be shown.
@@ -73,6 +73,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 	
 	/**
 	 * @test
+	 * @depends mysql_setup
 	 */
 	public function insert_DataIsGiven_TheRowIsInserted() {
 		$db = $this->createHelper();
@@ -90,6 +91,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @depends mysql_setup
 	 */
 	public function insert_MultipleRowsGiven_AllRowsAreInserted() {
 		$db = $this->createHelper();
@@ -112,6 +114,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @depends mysql_setup
 	 */
 	public function insert_RowIsInserted_ResultContainsRequiredData() {
 		$db = $this->createHelper();
@@ -128,6 +131,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @depends mysql_setup
 	 */
 	public function insert_RowContainsQuotes_RowIsInsertedCorrectly() {
 		$db = $this->createHelper();
@@ -213,6 +217,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @depends mysql_setup
 	 */
 	public function getDefaults_TableExists_ReturnsDefaultRow() {
 		$db = $this->createHelper();
