@@ -21,7 +21,7 @@ use \sql\builders\DefaultsQueryBuilder;
 class SQLHelper {
 	public function __construct($options) {
 		$this->options = array_merge(
-		  array('prefix'=> '')
+		  array('prefix'=> '', 'host'=> 'localhost')
 		, $options
 		);
 	}
@@ -37,7 +37,12 @@ class SQLHelper {
 		$this->options['db'] = $db;
 		return $this;
 	}
-	
+
+	public function setHost($host) {
+		$this->options['host'] = $host;
+		return $this;
+	}
+
 	public function setPrefix($prefix) {
 		$this->options['prefix'] = $prefix;
 		return $this;
