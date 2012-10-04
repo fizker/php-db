@@ -3,7 +3,11 @@ namespace sql;
 
 class Results {
 	private $length, $sql, $lastId, $array;
-	public function __construct($conn, $sql) {
+	public function __construct($conn, $sql = null) {
+		if(is_array($conn)) {
+			$sql = $conn;
+			$conn = null;
+		}
 		if(is_array($sql)) {
 			$this->array = $sql;
 			return;

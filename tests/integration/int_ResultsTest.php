@@ -7,28 +7,27 @@ use \sql\Results;
 class int_ResultsTest extends PHPUnit_Framework_TestCase {
 	private $link;
 	protected function setUp() {
-		$this->link = mysql_connect('localhost', 'test-user', 'test-password');
-		mysql_select_db('test');
+		$this->link = new mysqli('localhost', 'test-user', 'test-password', 'test');
 
-		mysql_query('DROP TABLE IF EXISTS php_integration_tests');
-		mysql_query('CREATE TABLE php_integration_tests (
+		$this->link->query('DROP TABLE IF EXISTS php_integration_tests');
+		$this->link->query('CREATE TABLE php_integration_tests (
 			id int unsigned not null auto_increment,
 			primary key(id)
 		)');
 	}
 	protected function tearDown() {
-		mysql_close($this->link);
+		$this->link->close();
 	}
 
 	/**
 	 * @test
 	 */
 	public function getRow_2RowsAreFetched_BothRowsCanBeReturned() {
-		mysql_query('insert into php_integration_tests (id) values (1),(2)');
+		$this->link->query('insert into php_integration_tests (id) values (1),(2)');
 		
-		$sql = mysql_query('select * from php_integration_tests');
+		$sql = $this->link->query('select * from php_integration_tests');
 		
-		$results = new Results($sql);
+		$results = new Results($this->link, $sql);
 		
 		$this->assertEquals(array('id'=> 1), $results->getRow());
 		$this->assertEquals(array('id'=> 2), $results->getRow());
@@ -38,11 +37,11 @@ class int_ResultsTest extends PHPUnit_Framework_TestCase {
 	 * @test
 	 */
 	public function toArray_2RowsAreFetched_ReturnsAllRowsAsArray() {
-		mysql_query('insert into php_integration_tests (id) values (1),(2)');
+		$this->link->query('insert into php_integration_tests (id) values (1),(2)');
 		
-		$sql = mysql_query('select * from php_integration_tests');
+		$sql = $this->link->query('select * from php_integration_tests');
 		
-		$results = new Results($sql);
+		$results = new Results($this->link, $sql);
 		
 		$this->assertEquals(array(
 			array('id'=> 1),
@@ -54,11 +53,11 @@ class int_ResultsTest extends PHPUnit_Framework_TestCase {
 	 * @test
 	 */
 	public function getRow_toArrayIsCalledFirst_BothRowsAreStillGettable() {
-		mysql_query('insert into php_integration_tests (id) values (1),(2)');
+		$this->link->query('insert into php_integration_tests (id) values (1),(2)');
 		
-		$sql = mysql_query('select * from php_integration_tests');
+		$sql = $this->link->query('select * from php_integration_tests');
 		
-		$results = new Results($sql);
+		$results = new Results($this->link, $sql);
 		$results->toArray();
 		
 		$this->assertEquals(array('id'=> 1), $results->getRow());
