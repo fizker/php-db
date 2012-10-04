@@ -167,6 +167,10 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 }
 
 class TestableQueryBuilder extends QueryBuilder {
+	public function __construct($db) {
+		parent::__construct(null, $db);
+	}
+
 	public function escape($str) {
 		return parent::escape($str);
 	}

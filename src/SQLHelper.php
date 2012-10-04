@@ -19,6 +19,8 @@ use \sql\builders\InsertBuilder;
 use \sql\builders\DefaultsQueryBuilder;
 
 class SQLHelper {
+	private $conn;
+
 	public function __construct($options) {
 		$this->options = array_merge(
 		  array('prefix'=> '', 'host'=> 'localhost')
