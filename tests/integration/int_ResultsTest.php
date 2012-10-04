@@ -76,5 +76,51 @@ class int_ResultsTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array('id'=> 1), $results->getRow());
 		$this->assertEquals(array('id'=> 2), $results->getRow());
 	}
+
+	/**
+	 * @test
+	 */
+	public function foreach_resultsAreCreatedWithSQL_iteratesAsExpected() {
+		$this->link->query('insert into php_integration_tests (id) values (1),(2)');
+		$sql = $this->link->query('select * from php_integration_tests');
+
+		$results = new Results($this->link, $sql);
+
+		$expected = array
+		( array('id'=> 1)
+		, array('id'=> 2)
+		);
+		foreach($results as $row) {
+			$this->assertEquals(array_shift($expected), $row);
+		}
+		$this->assertEquals(
+		  array()
+		, $expected
+		, 'It should have shifted the hell out of this array'
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function foreach_resultsAreCreatedWithArray_iteratesAsExpected() {
+		$results = new Results(array(
+			array('id'=> 1),
+			array('id'=> 2)
+		));
+
+		$expected = array
+		( array('id'=> 1)
+		, array('id'=> 2)
+		);
+		foreach($results as $row) {
+			$this->assertEquals(array_shift($expected), $row);
+		}
+		$this->assertEquals(
+		  array()
+		, $expected
+		, 'It should have shifted the hell out of this array'
+		);
+	}
 }
 ?>
