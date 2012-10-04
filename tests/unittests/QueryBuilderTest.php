@@ -83,7 +83,7 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 	public function toString_execIsCalled_ShouldCallToString() {
 		$debugMode = true;
 		$fakeBuilder = $this->getMockBuilder('\sql\builders\QueryBuilder')
-			->setConstructorArgs(array('database name', 'table prefix', $debugMode))
+			->setConstructorArgs(array('mysqli conn', 'database name', 'table prefix', $debugMode))
 			->setMethods(array('toString'))
 			->getMock();
 		
@@ -167,6 +167,11 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 }
 
 class TestableQueryBuilder extends QueryBuilder {
+	public function __construct($db) {
+		parent::__construct(null, $db);
+		$this->useDebug = true;
+	}
+
 	public function escape($str) {
 		return parent::escape($str);
 	}

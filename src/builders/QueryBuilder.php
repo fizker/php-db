@@ -7,8 +7,9 @@ use \sql\Results;
 use \sql\tokenizers\ParamTokenizer;
 
 abstract class QueryBuilder {
-	protected $db, $prefix, $useDebug;
-	public function __construct($db, $prefix = '', $useDebug = false) {
+	protected $conn, $db, $prefix, $useDebug;
+	public function __construct($conn, $db, $prefix = '', $useDebug = false) {
+		$this->conn = $conn;
 		$this->useDebug = $useDebug;
 		$this->db = $db;
 		$this->prefix = $prefix;
@@ -21,10 +22,11 @@ abstract class QueryBuilder {
 		if($this->useDebug) {
 			return $query;
 		}
-		
-		$sql = mysql_query($query);
+
+		$sql = $this->conn->query($query);
+
 		if(!$sql) throw new \Exception(mysql_error());
-		return new Results($sql);
+		return new Results($this->conn, $sql);
 	}
 	
 	public function escape($str) {

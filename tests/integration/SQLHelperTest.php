@@ -15,16 +15,18 @@ use \sql\builders\QueryBuilder;
  */
 class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
-		$link = mysql_connect('localhost', 'test-user', 'test-password');
-		mysql_select_db('test');
-		mysql_query('DROP TABLE IF EXISTS php_integration_tests');
-		mysql_query('CREATE TABLE php_integration_tests ( 
+		$this->link = new mysqli('localhost', 'test-user', 'test-password', 'test');
+		$this->link->query('DROP TABLE IF EXISTS php_integration_tests');
+		$this->link->query('CREATE TABLE php_integration_tests (
 			id int UNSIGNED NOT NULL AUTO_INCREMENT,
 			name varchar(200),
 			has_default VARCHAR(10) DEFAULT "val ue \' """,
 			PRIMARY KEY(id)
 		)');
-		mysql_close($link);
+	}
+
+	protected function tearDown() {
+		$this->link->close();
 	}
 
 	/**
@@ -44,14 +46,14 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 	 * @depends mysql_setup
 	 */
 	public function exec_MySQL_ZeroRowsInDatabase_ReturnsZeroRows() {
-		$link = mysql_connect('localhost', 'test-user', 'test-password');
-		mysql_select_db('test');
-		$db = new TestableIntegrationQueryBuilder('SELECT * FROM php_integration_tests');
+		$link = new mysqli('localhost', 'test-user', 'test-password', 'test');
+
+		$db = new TestableIntegrationQueryBuilder($link, 'SELECT * FROM php_integration_tests');
 		
 		$result = $db->exec();
 		
 		$this->assertEquals(0, $result->length());
-		mysql_close($link);
+		$link->close();
 	}
 
 	/**
@@ -59,16 +61,15 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 	 * @depends mysql_setup
 	 */
 	public function exec_MySQL_TwoRowsInDatabase_ReturnsTwoRows() {
-		$link = mysql_connect('localhost', 'test-user', 'test-password');
-		mysql_select_db('test');
-		mysql_query('INSERT INTO php_integration_tests (id, name) VALUES (1, "bum"), (2, "bang")');
+		$link = new mysqli('localhost', 'test-user', 'test-password', 'test');
+		$link->query('INSERT INTO php_integration_tests (id, name) VALUES (1, "bum"), (2, "bang")');
 		
-		$db = new TestableIntegrationQueryBuilder('SELECT * FROM php_integration_tests');
+		$db = new TestableIntegrationQueryBuilder($link, 'SELECT * FROM php_integration_tests');
 		
 		$result = $db->exec();
 		
 		$this->assertEquals(2, $result->length());
-		mysql_close($link);
+		$link->close();
 	}
 	
 	/**
@@ -82,10 +83,11 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 			'id'=> '1',
 			'name'=> 'a'
 		))->into('php_integration_tests')->exec();
-		$sql = mysql_query('SELECT id,name FROM php_integration_tests WHERE id=1');
-		$row = mysql_fetch_assoc($sql);
 
-		$this->assertEquals(1, mysql_num_rows($sql));
+		$sql = $this->link->query('SELECT id,name FROM php_integration_tests WHERE id=1');
+		$row = $sql->fetch_assoc();
+
+		$this->assertEquals(1, $sql->num_rows);
 		$this->assertEquals(array('id'=> 1, 'name'=> 'a'), $row);
 	}
 
@@ -105,11 +107,11 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 				'name'=> 'b'
 			)
 		))->into('php_integration_tests')->exec();
-		$sql = mysql_query('SELECT id,name FROM php_integration_tests');
 
-		$this->assertEquals(2, mysql_num_rows($sql));
-		$this->assertEquals(array('id'=> 1, 'name'=> 'a'), mysql_fetch_assoc($sql));
-		$this->assertEquals(array('id'=> 2, 'name'=> 'b'), mysql_fetch_assoc($sql));
+		$sql = $this->link->query('SELECT id,name FROM php_integration_tests');
+		$this->assertEquals(2, $sql->num_rows);
+		$this->assertEquals(array('id'=> 1, 'name'=> 'a'), $sql->fetch_assoc());
+		$this->assertEquals(array('id'=> 2, 'name'=> 'b'), $sql->fetch_assoc());
 	}
 
 	/**
@@ -138,7 +140,7 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		// We insert this row to ensure that the next auto-id should be 2
 		$db->insert(array('id'=>1,'name'=>'a"b\"c'."'d\'e"))->into('php_integration_tests')->exec();
 		
-		$row = mysql_fetch_assoc(mysql_query('select name from php_integration_tests where id=1'));
+		$row = $this->link->query('select name from php_integration_tests where id=1')->fetch_assoc();
 		
 		$this->assertEquals('a"b\"c'."'d\'e", $row['name']);
 	}
@@ -251,7 +253,8 @@ class TestableIntegrationQueryBuilderWithOriginalConstructor extends QueryBuilde
 }
 class TestableIntegrationQueryBuilder extends QueryBuilder {
 	private $query;
-	public function __construct($query) {
+	public function __construct($conn, $query) {
+		parent::__construct($conn, '');
 		$this->query = $query;
 	}
 	public function toString() {
