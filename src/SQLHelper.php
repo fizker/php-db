@@ -28,11 +28,19 @@ class SQLHelper {
 	
 	public function connect() {
 		$options = $this->options;
-		mysql_connect('localhost', $options['user'], $options['pass']);
-		mysql_select_db($options['db']);
+		$this->conn = new \mysqli(
+		  'localhost'
+		, $options['user']
+		, $options['pass']
+		, $options['db']
+		);
 		return $this;
 	}
-	
+
+	public function error() {
+		return $this->conn->error;
+	}
+
 	public function setDatabase($db) {
 		$this->options['db'] = $db;
 		return $this;
@@ -49,32 +57,32 @@ class SQLHelper {
 	}
 	
 	public function select($what) {
-		$s = new SelectBuilder($this->options['db'], $this->options['prefix']);
+		$s = new SelectBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		return $s->select($what);
 	}
 	
 	public function insert($data) {
-		$i = new InsertBuilder($this->options['db'], $this->options['prefix']);
+		$i = new InsertBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		return $i->insert($data);
 	}
 	
 	public function update($table) {
-		$u = new UpdateBuilder($this->options['db'], $this->options['prefix']);
+		$u = new UpdateBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		return $u->update($table);
 	}
 	
 	public function delete() {
-		$d = new DeleteBuilder($this->options['db'], $this->options['prefix']);
+		$d = new DeleteBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		return $d;
 	}
 	
 	public function query($query) {
-		$q = new DirectQueryBuilder($this->options['db']);
+		$q = new DirectQueryBuilder($this->conn, $this->options['db']);
 		return $q->query($query);
 	}
 	
 	public function getDefaults($table) {
-		$b = new DefaultsQueryBuilder($this->options['db'], $this->options['prefix']);
+		$b = new DefaultsQueryBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		$b->forTable($table);
 		return $b;
 	}

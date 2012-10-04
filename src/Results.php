@@ -3,17 +3,15 @@ namespace sql;
 
 class Results {
 	private $length, $sql, $lastId, $array;
-	public function __construct($sql) {
+	public function __construct($conn, $sql) {
 		if(is_array($sql)) {
 			$this->array = $sql;
 			return;
 		}
 		$this->sql = $sql;
 		if(is_bool($sql) && $sql) {
-			$this->length = mysql_affected_rows();
-			$sql = mysql_query('SELECT LAST_INSERT_ID()');
-			$id = mysql_fetch_row($sql);
-			$this->lastId = $id[0];
+			$this->length = $conn->affected_rows;
+			$this->lastId = $conn->insert_id;
 		}
 	}
 	
@@ -31,7 +29,7 @@ class Results {
 			next($this->array);
 			return $el;
 		}
-		return mysql_fetch_assoc($this->sql);
+		return $this->sql->fetch_assoc();
 	}
 
 	public function toArray() {
@@ -46,8 +44,7 @@ class Results {
 	
 	public function length() {
 		if($this->length === null) {
-			if(is_bool($this->sql)) var_dump($this->sql);
-			$this->length = mysql_num_rows($this->sql);
+			$this->length = $this->sql->num_rows;
 		}
 		return $this->length;
 	}

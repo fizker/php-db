@@ -64,7 +64,7 @@ class DefaultsQueryBuilder extends QueryBuilder {
 	public function toString() {}
 	
 	public function exec() {
-		$qb = new DirectQueryBuilder($this->db);
+		$qb = new DirectQueryBuilder($this->conn, $this->db);
 		
 		$row = $qb
 			->query('SHOW CREATE TABLE '
