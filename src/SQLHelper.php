@@ -4,6 +4,7 @@ namespace sql;
 require_once(__DIR__.'/Results.php');
 require_once(__DIR__.'/builders/QueryBuilder.php');
 require_once(__DIR__.'/builders/DirectQueryBuilder.php');
+require_once(__DIR__.'/builders/MultiQueryBuilder.php');
 require_once(__DIR__.'/builders/InsertQueryBuilder.php');
 require_once(__DIR__.'/builders/SelectQueryBuilder.php');
 require_once(__DIR__.'/builders/UpdateQueryBuilder.php');
@@ -12,6 +13,7 @@ require_once(__DIR__.'/builders/DefaultsQueryBuilder.php');
 require_once(__DIR__.'/LiteralValue.php');
 
 use \sql\builders\DirectQueryBuilder;
+use \sql\builders\MultiQueryBuilder;
 use \sql\builders\SelectBuilder;
 use \sql\builders\DeleteBuilder;
 use \sql\builders\UpdateBuilder;
@@ -79,10 +81,15 @@ class SQLHelper {
 	}
 	
 	public function query($query) {
-		$q = new DirectQueryBuilder($this->conn, $this->options['db']);
+		$q = new DirectQueryBuilder($this->conn);
 		return $q->query($query);
 	}
-	
+
+	public function multiQuery($query) {
+		$mq = new MultiQueryBuilder($this->conn);
+		return $mq->query(func_get_args());
+	}
+
 	public function getDefaults($table) {
 		$b = new DefaultsQueryBuilder($this->conn, $this->options['db'], $this->options['prefix']);
 		$b->forTable($table);
