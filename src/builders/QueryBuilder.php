@@ -14,9 +14,12 @@ abstract class QueryBuilder {
 		$this->db = $db;
 		$this->prefix = $prefix;
 	}
-	
+
 	public abstract function toString();
-	
+	public final function __toString() {
+		return $this->toString();
+	}
+
 	public function exec() {
 		$query = $this->toString();
 		if($this->useDebug) {
@@ -25,7 +28,7 @@ abstract class QueryBuilder {
 
 		$sql = $this->conn->query($query);
 
-		if(!$sql) throw new \Exception(mysql_error());
+		if(!$sql) throw new \Exception($this->conn->error);
 		return new Results($this->conn, $sql);
 	}
 	

@@ -234,6 +234,55 @@ class SQLHelperIntegrationTest extends PHPUnit_Framework_TestCase {
 		), $row);
 	}
 
+	/**
+	 * @test
+	 * @depends mysql_setup
+	 * @depends select_RowsAreSelected_TheyCanBeIterated
+	 */
+	public function multiQuery_2QueriesGiven_databaseIsUpdated() {
+		$db = $this->createHelper();
+
+		$result = $db->multiQuery(
+		  'insert into php_integration_tests (name) values ("a")'
+		, $db->insert(array('name'=>'b'))->into('php_integration_tests')
+		)->exec();
+
+		$result = $db->select('*')->from('php_integration_tests')->exec();
+
+		$this->assertEquals(2, $result->length());
+	}
+
+	/**
+	 * @test
+	 */
+	public function multiQuery_multipleQueriesInOneString_allAreExecuted() {
+		$db = $this->createHelper();
+
+		$result = $db->multiQuery(
+		  'insert into php_integration_tests (name) values ("a");'
+		. 'insert into php_integration_tests (name) values ("b")'
+		)->exec();
+
+		$result = $db->select('*')->from('php_integration_tests')->exec();
+
+		$this->assertEquals(2, $result->length());
+	}
+
+	/**
+	 * @test
+	 */
+	public function multiQuery_lastStatementIsSelect_resultsAreReturned() {
+		$db = $this->createHelper();
+
+		$result = $db->multiQuery(
+		  $db->insert(array('name'=>'a'))->into('php_integration_tests')
+		, $db->insert(array('name'=>'b'))->into('php_integration_tests')
+		, $db->select('*')->from('php_integration_tests')
+		)->exec();
+
+		$this->assertEquals(2, $result->length());
+	}
+
 	private function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'test',
@@ -261,4 +310,3 @@ class TestableIntegrationQueryBuilder extends QueryBuilder {
 		return $this->query;
 	}
 }
-?>
