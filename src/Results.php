@@ -38,11 +38,14 @@ class Results implements \Iterator {
 
 	public function toArray() {
 		$array = array();
+		$l = 0;
 		while($row = $this->getRow()) {
 			$array[] = $row;
+			$l++;
 		}
 		reset($array);
 		$this->array = $array;
+		$this->length = $l;
 		return $array;
 	}
 

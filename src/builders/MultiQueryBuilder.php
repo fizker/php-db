@@ -1,6 +1,8 @@
 <?php
 namespace sql\builders;
 
+use \sql\Results;
+
 class MultiQueryBuilder extends QueryBuilder {
 	private $queries;
 
@@ -16,11 +18,39 @@ class MultiQueryBuilder extends QueryBuilder {
 			}
 			return $this;
 		}
-		if($query instanceof QueryBuilder) {
-			$query = $query->toString();
+		if(is_string($query)) {
+			$query = new DirectQueryBuilder($this->conn, $query);
 		}
 		$this->queries[] = $query;
 		return $this;
+	}
+
+	public function exec() {
+		$s = $this->toString();
+		if($this->useDebug) {
+			return $s;
+		}
+
+		$sql = $this->conn->multi_query($s);
+		if(!$sql) throw new \Exception($this->conn->error);
+
+		$result = false;
+		do {
+			$r = $this->conn->store_result();
+			if($r) {
+				$result = new Results($this->conn, $r);
+				$result->toArray();
+				$r->close();
+			} else {
+				if($this->conn->error) {
+					throw new \Exception($this->conn->error);
+				}
+			}
+		} while(@$this->conn->next_result());
+		if(!$result) {
+			$result = new Results($this->conn, true);
+		}
+		return $result;
 	}
 
 	public function toString() {
