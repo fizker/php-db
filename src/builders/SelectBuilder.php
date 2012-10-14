@@ -64,13 +64,12 @@ class SelectBuilder extends QueryBuilder {
 		return $this;
 	}
 
-	public function join($table, $clause = '') {
-		if($clause) {
-			$this->join[] = 'INNER JOIN '.$this->prefixTable($table).' ON '.$clause;
-		} else {
-			$this->join[] = 'CROSS JOIN '.$this->prefixTable($table);
+	public function join($table) {
+		if($table instanceof JoinBuilder) {
+			$this->join[] = $table;
+			return $this;
 		}
-		return $this;
+		return new JoinBuilder($this, $table);
 	}
 
 	public function toString() {

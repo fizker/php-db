@@ -44,7 +44,7 @@ abstract class QueryBuilder {
 			array('\\\\',	'""'), 
 			$str).'"';
 	}
-	protected function prefixTable($table) {
+	public function prefixTable($table) {
 		if($this->prefix && strpos($table, $this->prefix) !== 0) {
 			$table = $this->prefix.'_'.$table;
 		}

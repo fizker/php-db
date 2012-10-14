@@ -1,6 +1,6 @@
 <?php
 
-include_once(__DIR__.'/../../src/SQLHelper.php');
+include_once(__DIR__.'/../../index.php');
 
 use \sql\SQLHelper;
 use \sql\QueryBuilder;
@@ -222,59 +222,14 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
-	public function join_tableWithoutClause_validSql() {
-		$db = $this->createHelper();
-
-		$result = $db
-			->select('*')
-			->from('a')
-			->join('b')
-			->toString();
-
-		$this->assertEquals('SELECT * FROM `db`.a CROSS JOIN `db`.b', $result);
-	}
-
-	/**
-	 * @test
-	 */
-	public function join_tableWithClause_validSql() {
-		$db = $this->createHelper();
-
-		$result = $db
-			->select('*')
-			->from('a')
-			->join('b', 'a.id=b.id')
-			->toString();
-
-		$this->assertEquals('SELECT * FROM `db`.a INNER JOIN `db`.b ON a.id=b.id', $result);
-	}
-
-	/**
-	 * @test
-	 */
-	public function join_tableWithAlias_validSql() {
-		$db = $this->createHelper();
-
-		$result = $db
-			->select('*')
-			->from('a')
-			->join('a AS b')
-			->toString();
-
-		$this->assertEquals('SELECT * FROM `db`.a CROSS JOIN `db`.a AS b', $result);
-	}
-
-	/**
-	 * @test
-	 */
 	public function join_multipleJoins_validSql() {
 		$db = $this->createHelper();
 
 		$result = $db
 			->select('*')
 			->from('a')
-			->join('a AS b')
-			->join('c')
+			->join('a')->as('b')->done()
+			->join('c')->done()
 			->toString();
 
 		$this->assertEquals('SELECT * FROM `db`.a CROSS JOIN `db`.a AS b, CROSS JOIN `db`.c', $result);
