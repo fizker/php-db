@@ -1,6 +1,6 @@
 <?php
 
-include_once(__DIR__.'/../../src/SQLHelper.php');
+include_once(__DIR__.'/../../index.php');
 
 use \sql\SQLHelper;
 use \sql\QueryBuilder;
@@ -119,6 +119,26 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('("A1", B1)', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function onDuplicate_valuesGiven_validSql() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->insert(array(
+				'a'=> 1
+			))
+			->into('table')
+			->onDuplicate(array(
+				'b'=> 2,
+				'c'=> 3
+			))
+			->toString();
+
+		$this->assertContains('ON DUPLICATE KEY UPDATE `b`="2", `c`="3"', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',
@@ -129,4 +149,3 @@ class SQLHelperInsertTest extends PHPUnit_Framework_TestCase {
 		return $db;
 	}
 }
-?>
