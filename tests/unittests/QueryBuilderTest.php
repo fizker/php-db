@@ -172,13 +172,6 @@ class TestableQueryBuilder extends QueryBuilder {
 		$this->useDebug = true;
 	}
 
-	public function escape($str) {
-		return parent::escape($str);
-	}
-	public function addParams($str, $params) {
-		return parent::addParams($str, $params);
-	}
-
 	public function prefixTable($table) {
 		return parent::prefixTable($table);
 	}

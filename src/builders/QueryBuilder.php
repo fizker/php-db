@@ -32,7 +32,7 @@ abstract class QueryBuilder {
 		return new Results($this->conn, $sql);
 	}
 	
-	public function escape($str) {
+	public static function escape($str) {
 		if($str === null) {
 			return 'NULL';
 		}
@@ -51,14 +51,14 @@ abstract class QueryBuilder {
 		return '`'.$this->db.'`.'.$table;
 	}
 	
-	protected function addParams($str, $params) {
+	public static function addParams($str, $params) {
 		$tokens = new ParamTokenizer($str);
 		if($tokens->count() !== sizeof($params)) {
 			throw new \InvalidArgumentException('Number of params does not match');
 		}
 		$str = $tokens->next();
 		foreach($params as $param) {
-			$str .= $this->escape($param);
+			$str .= self::escape($param);
 			$str .= $tokens->next();
 		}
 		return $str;
