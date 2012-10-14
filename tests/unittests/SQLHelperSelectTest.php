@@ -1,6 +1,6 @@
 <?php
 
-include_once(__DIR__.'/../../src/SQLHelper.php');
+include_once(__DIR__.'/../../index.php');
 
 use \sql\SQLHelper;
 use \sql\QueryBuilder;
@@ -217,6 +217,22 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 			->toString();
 
 		$this->assertEquals('SELECT * FROM `db`.table LIMIT 1,2', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function join_multipleJoins_validSql() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->select('*')
+			->from('a')
+			->join('a')->as('b')->done()
+			->join('c')->done()
+			->toString();
+
+		$this->assertEquals('SELECT * FROM `db`.a CROSS JOIN `db`.a AS b, CROSS JOIN `db`.c', $result);
 	}
 
 	public function createHelper() {

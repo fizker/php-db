@@ -2,7 +2,7 @@
 namespace sql\builders;
 
 class SelectBuilder extends QueryBuilder {
-	private $what, $from, $where, $order, $group, $limit;
+	private $what, $from, $where, $order, $group, $limit, $join;
 
 	public function select($w) {
 		$what = array();
@@ -64,8 +64,20 @@ class SelectBuilder extends QueryBuilder {
 		return $this;
 	}
 
+	public function join($table) {
+		if($table instanceof JoinBuilder) {
+			$this->join[] = $table;
+			return $this;
+		}
+		return new JoinBuilder($this, $table);
+	}
+
 	public function toString() {
 		$query = "SELECT $this->what FROM $this->from";
+
+		if($this->join) {
+			$query .= ' '.implode($this->join, ', ');
+		}
 
 		if($this->where)
 			$query .= " WHERE $this->where";
