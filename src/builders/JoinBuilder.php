@@ -35,14 +35,15 @@ class JoinBuilder {
 	}
 
 	public function toString() {
-		if($this->clause) {
-			$s = "INNER JOIN $this->table ON $this->clause";
-		} else {
-			$s = "CROSS JOIN $this->table";
-		}
-		
+		$table = $this->table;
 		if($this->alias) {
-			$s .= " AS $this->alias";
+			$table .= " AS $this->alias";
+		}
+
+		if($this->clause) {
+			$s = "INNER JOIN $table ON $this->clause";
+		} else {
+			$s = "CROSS JOIN $table";
 		}
 
 		return $s;

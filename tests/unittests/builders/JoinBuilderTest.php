@@ -89,6 +89,20 @@ class JoinBuilderTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('SELECT * FROM `db`.a CROSS JOIN `db`.b', $result);
 	}
 
+	/**
+	 * @test
+	 */
+	public function toString_multipleParams_validSql() {
+		$join = $this->createHelper()->select('*')->join('a');
+
+		$result = $join
+			->on('c')
+			->as('b')
+			->toString();
+
+		$this->assertEquals('INNER JOIN `db`.a AS b ON c', $result);
+	}
+
 	public function createHelper() {
 		$db = new SQLHelper(array(
 			'db'=> 'db',
