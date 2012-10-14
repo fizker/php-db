@@ -1,9 +1,8 @@
 <?php
 
-include_once(__DIR__.'/../../src/SQLHelper.php');
+include_once(__DIR__.'/../../index.php');
 
 use \sql\SQLHelper;
-use \sql\QueryBuilder;
 
 /**
  * NOTE: The tests does not verify the actual db-connection.
@@ -133,6 +132,34 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 			->toString();
 		
 		$this->assertContains('`a`="A1", `b`=B2', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function set_stringGiven_validSql() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->update('table')
+			->set('a=1, b=2')
+			->toString();
+
+		$this->assertContains('a=1, b=2', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function set_stringWithParams_validSql() {
+		$db = $this->createHelper();
+
+		$result = $db
+			->update('table')
+			->set('a=?, b=?', 1, 2)
+			->toString();
+
+		$this->assertContains('a="1", b="2"', $result);
 	}
 
 	public function createHelper() {

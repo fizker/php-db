@@ -7,7 +7,7 @@ require_once(__DIR__.'/builders/DirectQueryBuilder.php');
 require_once(__DIR__.'/builders/MultiQueryBuilder.php');
 require_once(__DIR__.'/builders/InsertBuilder.php');
 require_once(__DIR__.'/builders/SelectBuilder.php');
-require_once(__DIR__.'/builders/UpdateQueryBuilder.php');
+require_once(__DIR__.'/builders/UpdateBuilder.php');
 require_once(__DIR__.'/builders/DeleteQueryBuilder.php');
 require_once(__DIR__.'/builders/DefaultsQueryBuilder.php');
 require_once(__DIR__.'/LiteralValue.php');
