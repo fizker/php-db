@@ -88,6 +88,17 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 */
+	public function select_tablesAreParams_AllAreIncluded() {
+		$db = $this->createHelper();
+
+		$result = $db->select('a')->from('b', 'c')->toString();
+
+		$this->assertEquals('SELECT a FROM `db`.b, `db`.c', $result);
+	}
+
+	/**
+	 * @test
 	 * @dataProvider provider_select_PrefixIsSet_TablesArePrefixed
 	 */
 	public function select_PrefixIsSet_TablesArePrefixed($tables, $expectedTables) {

@@ -24,6 +24,9 @@ class SelectBuilder extends QueryBuilder {
 	}
 
 	public function from($f) {
+		if(func_num_args() > 1) {
+			return $this->from(func_get_args());
+		}
 		if(!is_array($f)) {
 			$f = array($f);
 		}
