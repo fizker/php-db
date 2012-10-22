@@ -28,7 +28,7 @@ abstract class QueryBuilder {
 
 		$sql = $this->conn->query($query);
 
-		if(!$sql) throw new \Exception($this->conn->error);
+		if(!$sql) throw new \Exception($this->conn->error.".\n$query");
 		return new Results($this->conn, $sql);
 	}
 	
