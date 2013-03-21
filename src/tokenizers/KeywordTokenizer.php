@@ -6,7 +6,7 @@ this should iterate through $str, splitting along any entry in $keywords unless
 they are within quotes, and return either the content or the keyword on ::next(),
 as appropriate.
 */
-class KeywordTokenizer {
+class KeywordTokenizer implements \Iterator {
 	private $input, $keywords;
 	public function __construct($str, $keywords) {
 		$this->input = $str;
@@ -15,9 +15,11 @@ class KeywordTokenizer {
 		}, $keywords);
 
 		$this->results = array();
-		$words = explode(' ', $str);
+
+		$tokens = new ParamTokenizer($str, ' ');
+
 		$nextWord = '';
-		foreach($words as $word) {
+		while($word = $tokens->next()) {
 			$nextWord .= ' ' . $word;
 
 			foreach($keywords as $keyword) {
@@ -36,13 +38,39 @@ class KeywordTokenizer {
 		}
 	}
 
+	// Iterator methods
+
+	public function key() {
+		if($this->results) {
+			return key($this->results);
+		}
+	}
+	public function current() {
+		if($this->results) {
+			return current($this->results);
+		}
+	}
+
+	public function valid() {
+		if($this->results) {
+			return $this->key() !== null;
+		}
+	}
+
 	public function next() {
-		$c = current($this->results);
+		$c = $this->current();
 		if($c === false) {
 			return null;
 		}
 		next($this->results);
 		return $c;
+	}
+
+	public function rewind() {
+		if(!$this->results) {
+			$this->toArray();
+		}
+		reset($this->results);
 	}
 }
 
@@ -78,7 +106,7 @@ class Keyword {
 		// Getting the actual string
 		$word = $word[1];
 
-		return $word === $this->keyword;
+		return strtoupper($word) === strtoupper($this->keyword);
 	}
 }
 
