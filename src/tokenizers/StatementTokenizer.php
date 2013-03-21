@@ -21,7 +21,7 @@ class StatementTokenizer {
 			}
 			switch($currentKeyword) {
 				case 'WHERE':
-					$this->where = $token->value;
+					$this->setWhere($token->value);
 					break;
 			}
 		}
@@ -37,13 +37,33 @@ class StatementTokenizer {
 		return $str;
 	}
 
+	private function setWhere($str) {
+		$tokens = new KeywordTokenizer($str, array('AND', 'OR'));
+		$w = array();
+		foreach($tokens as $token) {
+			if($token->isKeyword) {
+				continue;
+			}
+			$w[] = new Statement($token->value);
+		}
+		$this->where = $w;
+	}
+
 	public function getWhere() {
-		return array($this->where);
+		return $this->where;
 	}
 }
 
 class Statement {
-	public function __construct($str) {}
+	public $value;
+	public function __construct($str) {
+		$this->value = $str;
+	}
+
+	public function __toString() {
+		return $this->value;
+	}
+
 	public function isComparison() {}
 	public function isEqualityComparison() {}
 	public function isInequalityComparison() {}
