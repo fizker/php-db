@@ -14,18 +14,18 @@ class ParamTokenizer {
 		$this->quoteChars = $quoteChars;
 		$this->reset();
 	}
-	
+
 	private function getNextTokenAfterQuote($str, $quote, $prev) {
 		$len = strlen($str);
 		$nextToken = strpos($str, $this->char, $prev);
 		if($nextToken === false) {
 			$nextToken = $len;
 		}
-		
+
 		if($quote == null) {
 			return $nextToken;
 		}
-		
+
 		while($nextToken > $quote->start
 			&& $nextToken < $quote->end)
 		{
@@ -36,18 +36,19 @@ class ParamTokenizer {
 		}
 		return $nextToken;
 	}
+
 	private function tokenize($str) {
 		$tokens = array();
 		$quotes = new QuoteTokenizer($str, $this->quoteChars);
 		$quote = $quotes->next();
-		
+
 		$len = strlen($str);
 		$prev = 0;
 		do {
 			$p = $prev;
 			do {
 				$nextToken = $this->getNextTokenAfterQuote($str, $quote, $p);
-				if($quote 
+				if($quote
 					&& ($quote->start < $nextToken
 					|| $quote->end < $nextToken))
 				{
@@ -55,7 +56,7 @@ class ParamTokenizer {
 					$quote = $quotes->next();
 				}
 			} while($quote && $quote->start < $nextToken);
-			
+
 			$token = substr($str, $prev, $nextToken - $prev);
 			if($token === false) {
 				$tokens[] = '';
@@ -73,13 +74,12 @@ class ParamTokenizer {
 		next($this->tokens);
 		return $el;
 	}
-	
+
 	public function reset() {
 		$this->tokens = $this->tokenize($this->str);
 	}
-	
+
 	public function count() {
 		return sizeof($this->tokens)-1;
 	}
 }
-?>
