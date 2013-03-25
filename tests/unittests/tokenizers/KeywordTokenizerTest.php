@@ -8,6 +8,18 @@ class KeywordTokenizerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
+	public function next_keywordIsFirst_returnsKeyword() {
+		$keywords = new KeywordTokenizer('ab CD ef', array('AB'));
+
+		$p1 = $keywords->next();
+
+		$this->assertEquals('AB', $p1->value);
+		$this->assertTrue($p1->isKeyword);
+	}
+
+	/**
+	 * @test
+	 */
 	public function next_simpleInput_iteratesProperly() {
 		$keywords = new KeywordTokenizer('ab CD ef', array('CD'));
 

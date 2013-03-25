@@ -3,58 +3,77 @@ namespace sql\tokenizers;
 
 class StatementTokenizer {
 	private $where, $type;
+	private $tokens;
 
 	public function __construct($str) {
-		$this->input = trim($str);
-		$str = $this->findType($this->input);
-
-		$currentKeyword = 'TABLES';
+		$this->input = $str = trim($str);
 
 		$keywords = new KeywordTokenizer($str, array(
+			'SELECT', 'INSERT', 'DELETE FROM', 'UPDATE',
 			'WHERE', 'ORDER BY', 'LIMIT', 'GROUP BY'
 		));
 
+		$this->tokens = array();
 		foreach($keywords as $token) {
 			if($token->isKeyword) {
 				$currentKeyword = $token->value;
+				$this->tokens[] = new KeywordStatement($token->value);
 				continue;
 			}
 			switch($currentKeyword) {
 				case 'WHERE':
 					$this->setWhere($token->value);
 					break;
+				default:
+					$this->tokens[] = new Statement($token->value);
+					break;
 			}
 		}
-	}
-
-	private function findType() {
-		$str = $this->input;
-		$matches = array();
-		$pattern = '/^(SELECT|INSERT|DELETE( FROM)?|UPDATE)/';
-		preg_match($pattern, strtoupper($str), $matches);
-		$this->type = $matches[1];
-		$str = trim(substr($str, strlen($this->type)));
-		return $str;
 	}
 
 	private function setWhere($str) {
 		$tokens = new KeywordTokenizer($str, array('AND', 'OR'));
-		$w = array();
 		foreach($tokens as $token) {
 			if($token->isKeyword) {
+				$this->tokens[] = new KeywordStatement($token->value);
 				continue;
 			}
-			$w[] = new Statement($token->value);
+			$this->tokens[] = new WhereStatement($token->value);
 		}
-		$this->where = $w;
 	}
 
 	public function getWhere() {
 		return $this->where;
 	}
+
+	public function __toString() {
+		$str = '';
+		while($token = $this->next()) {
+			$str .= $token->value.' ';
+		}
+		return trim($str);
+	}
+
+	public function resolveParameters($params) {
+		$str = '';
+		while($token = $this->next()) {
+			$params = $token->resolveParameters($params);
+			$str .= $token->value.' ';
+		}
+		return trim($str);
+	}
+
+	private function next() {
+		$c = current($this->tokens);
+		if($c === false) {
+			return null;
+		}
+		next($this->tokens);
+		return $c;
+	}
 }
 
-class Statement {
+class KeywordStatement {
 	public $value;
 	public function __construct($str) {
 		$this->value = $str;
@@ -64,9 +83,43 @@ class Statement {
 		return $this->value;
 	}
 
+	public function resolveParameters($params) {
+		return $params;
+	}
+}
+
+class Statement extends KeywordStatement {
+	protected $params;
+	public function __construct($str) {
+		$this->value = $str;
+		$this->params = new ParamTokenizer($str);
+	}
+
+	protected function getNextParameter($current, $val) {
+		return $current . \sql\builders\QueryBuilder::escape($val) . $this->params->next();
+	}
+
+	public function resolveParameters($params) {
+		$return = $this->params->next();
+		$l = $this->params->count();
+		for($i = 0; $i < $l; $i++) {
+			$return = $this->getNextParameter($return, array_shift($params));
+		}
+		$this->value = $return;
+		return $params;
+	}
+}
+
+class WhereStatement extends Statement {
 	public function isComparison() {}
 	public function isEqualityComparison() {}
 	public function isInequalityComparison() {}
-	public function resolveParameter($val) {}
-	public function hasUnresolvedParameter() {}
+
+	protected function getNextParameter($current, $val) {
+		if($val === null) {
+			$params = new ParamTokenizer($current.$val, '=');
+			return $params->next() . $params->next() . ' IS NULL';
+		}
+		return parent::getNextParameter($current, $val);
+	}
 }

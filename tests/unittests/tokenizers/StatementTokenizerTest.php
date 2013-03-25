@@ -9,44 +9,34 @@ class StatementTokenizerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
-	public function getWhere_simpleSelectGiven_whereClauseIsProperlyExtracted() {
+	public function __toString_noParameters_correctStatementReturned() {
 		$statement = new StatementTokenizer('SELECT * FROM a WHERE b="c"');
 
-		$where = $statement->getWhere();
+		$actual = $statement->__toString();
 
-		$this->assertEquals(array('b="c"'), $where);
+		$this->assertEquals('SELECT * FROM a WHERE b="c"', $actual);
 	}
 
 	/**
 	 * @test
 	 */
-	public function getWhere_complexSelectGiven_whereClauseIsProperlyExtracted() {
-		$statement = new StatementTokenizer('SELECT * FROM a WHERE b="c" ORDER BY d');
-
-		$where = $statement->getWhere();
-
-		$this->assertEquals(array('b="c"'), $where);
-	}
-
-	/**
-	 * @test
-	 */
-	public function getWhere_multipleWhereStatements_allAreExtracted() {
-		$statement = new StatementTokenizer('SELECT * FROM a WHERE b="c" AND d="e"');
-
-		$where = $statement->getWhere();
-
-		$this->assertEquals(array('b="c"', 'd="e"'), $where);
-	}
-
-	/**
-	 * @test
-	 */
-	public function getWhere_whereIsPresent_StatementInstancesAreReturned() {
+	public function resolveParameters_noParameters_correctStatementReturned() {
 		$statement = new StatementTokenizer('SELECT * FROM a WHERE b="c"');
 
-		$where = $statement->getWhere();
+		$actual = $statement->resolveParameters(array());
 
-		$this->assertTrue(is_a($where[0], '\sql\tokenizers\Statement'));
+		$this->assertEquals('SELECT * FROM a WHERE b="c"', $actual);
+	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_updateStatement_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('UPDATE a SET b=?, c=? WHERE d=? AND e=?');
+
+		$params = array('1', null, 2, null);
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE d="2" AND e IS NULL', trim($actual));
 	}
 }

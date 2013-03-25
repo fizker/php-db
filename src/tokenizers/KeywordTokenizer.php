@@ -25,7 +25,7 @@ class KeywordTokenizer implements \Iterator {
 			foreach($keywords as $keyword) {
 				if($keyword->matches($word)) {
 					$nextWord = substr($nextWord, 0, -strlen($keyword->keyword));
-					if($nextWord) {
+					if(trim($nextWord)) {
 						$this->results[] = new Token(trim($nextWord), false);
 						$nextWord = '';
 					}
@@ -67,9 +67,6 @@ class KeywordTokenizer implements \Iterator {
 	}
 
 	public function rewind() {
-		if(!$this->results) {
-			$this->toArray();
-		}
 		reset($this->results);
 	}
 }
