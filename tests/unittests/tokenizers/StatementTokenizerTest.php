@@ -39,4 +39,16 @@ class StatementTokenizerTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE d="2" AND e IS NULL', trim($actual));
 	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_updateStatement_reversedParameters_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('UPDATE a SET b=?, c=? WHERE ?=d AND ?=e');
+
+		$params = array('1', null, 2, null);
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE "2"=d AND e IS NULL', trim($actual));
+	}
 }

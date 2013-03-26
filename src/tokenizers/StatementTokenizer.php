@@ -95,7 +95,7 @@ class Statement extends KeywordStatement {
 		$this->params = new ParamTokenizer($str);
 	}
 
-	protected function getNextParameter($current, $val) {
+	protected function addParameter($current, $val) {
 		return $current . \sql\builders\QueryBuilder::escape($val) . $this->params->next();
 	}
 
@@ -103,7 +103,7 @@ class Statement extends KeywordStatement {
 		$return = $this->params->next();
 		$l = $this->params->count();
 		for($i = 0; $i < $l; $i++) {
-			$return = $this->getNextParameter($return, array_shift($params));
+			$return = $this->addParameter($return, array_shift($params));
 		}
 		$this->value = $return;
 		return $params;
@@ -115,11 +115,10 @@ class WhereStatement extends Statement {
 	public function isEqualityComparison() {}
 	public function isInequalityComparison() {}
 
-	protected function getNextParameter($current, $val) {
+	protected function addParameter($current, $val) {
 		if($val === null) {
-			$params = new ParamTokenizer($current.$val, '=');
-			return $params->next() . $params->next() . ' IS NULL';
+			return str_replace('=', '', $current.$this->params->next()) . ' IS NULL';
 		}
-		return parent::getNextParameter($current, $val);
+		return parent::addParameter($current, $val);
 	}
 }
