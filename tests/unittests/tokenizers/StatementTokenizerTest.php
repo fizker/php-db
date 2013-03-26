@@ -37,7 +37,7 @@ class StatementTokenizerTest extends PHPUnit_Framework_TestCase {
 		$params = array('1', null, 2, null);
 		$actual = $statement->resolveParameters($params);
 
-		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE d="2" AND e IS NULL', trim($actual));
+		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE d="2" AND e IS NULL', $actual);
 	}
 
 	/**
@@ -49,6 +49,30 @@ class StatementTokenizerTest extends PHPUnit_Framework_TestCase {
 		$params = array('1', null, 2, null);
 		$actual = $statement->resolveParameters($params);
 
-		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE "2"=d AND e IS NULL', trim($actual));
+		$this->assertEquals('UPDATE a SET b="1", c=NULL WHERE "2"=d AND e IS NULL', $actual);
+	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_selectStatementWithNotEqualsAndNonNullValues_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('SELECT * FROM table WHERE a!=? AND ?!=b OR c<>? AND ?<>d');
+
+		$params = array('1', '2', '3', '4');
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('SELECT * FROM table WHERE a!="1" AND "2"!=b OR c<>"3" AND "4"<>d', $actual);
+	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_selectStatementWithNotEqualsAndNullValues_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('SELECT * FROM table WHERE a!=? AND ?!=b OR c<>? AND ?<>d');
+
+		$params = array(null, null, null, null);
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('SELECT * FROM table WHERE a IS NOT NULL AND b IS NOT NULL OR c IS NOT NULL AND d IS NOT NULL', $actual);
 	}
 }

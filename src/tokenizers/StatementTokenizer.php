@@ -112,12 +112,23 @@ class Statement extends KeywordStatement {
 
 class WhereStatement extends Statement {
 	public function isComparison() {}
-	public function isEqualityComparison() {}
-	public function isInequalityComparison() {}
+
+	public function isEqualityComparison() {
+		return !$this->isInequalityComparison();
+	}
+	public function isInequalityComparison() {
+		return strpos($this->value, '!=') !== false || strpos($this->value, '<>') !== false;
+	}
 
 	protected function addParameter($current, $val) {
 		if($val === null) {
-			return str_replace('=', '', $current.$this->params->next()) . ' IS NULL';
+			$comparator = array('!=', '<>');
+			$suffix = ' IS NOT NULL';
+			if($this->isEqualityComparison()) {
+				$comparator = '=';
+				$suffix = ' IS NULL';
+			}
+			return str_replace($comparator, '', $current.$this->params->next()) . $suffix;
 		}
 		return parent::addParameter($current, $val);
 	}
