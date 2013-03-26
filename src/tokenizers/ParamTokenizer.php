@@ -4,13 +4,14 @@ namespace sql\tokenizers;
 require_once(__DIR__.'/QuoteTokenizer.php');
 
 class ParamTokenizer {
-	private $str, $tokens, $char, $quoteChars;
+	private $str, $tokens, $char, $len, $quoteChars;
 	public function __construct($str
 		, $char = '?'
 		, $quoteChars = array( array('"'), array("'") ))
 	{
 		$this->str = $str;
 		$this->char = $char;
+		$this->len = strlen($char);
 		$this->quoteChars = $quoteChars;
 		$this->reset();
 	}
@@ -29,7 +30,7 @@ class ParamTokenizer {
 		while($nextToken > $quote->start
 			&& $nextToken < $quote->end)
 		{
-			$nextToken = strpos($str, $this->char, $nextToken+1);
+			$nextToken = strpos($str, $this->char, $nextToken + $this->len);
 			if($nextToken === false) {
 				$nextToken = $len;
 			}
@@ -63,8 +64,8 @@ class ParamTokenizer {
 				break;
 			}
 			$tokens[] = $token;
-			$prev = $nextToken + 1;
-		} while($prev - 1 < $len);
+			$prev = $nextToken + $this->len;
+		} while($prev - $this->len < $len);
 		
 		return $tokens;
 	}

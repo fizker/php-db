@@ -75,4 +75,39 @@ class StatementTokenizerTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals('SELECT * FROM table WHERE a IS NOT NULL AND b IS NOT NULL OR c IS NOT NULL AND d IS NOT NULL', $actual);
 	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_quotedEqualsSignAndNullValues_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('SELECT * FROM table WHERE "="=?');
+
+		$params = array(null);
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('SELECT * FROM table WHERE "=" IS NULL', $actual);
+	}
+
+	/**
+	 * @test
+	 */
+	public function resolveParameters_quotedQuestionMarkAndNullValues_replacementsShouldBeCorrect() {
+		$statement = new StatementTokenizer('SELECT * FROM table WHERE "?"=?');
+
+		$params = array(null);
+		$actual = $statement->resolveParameters($params);
+
+		$this->assertEquals('SELECT * FROM table WHERE "?" IS NULL', $actual);
+	}
+
+	/**
+	 * @test
+	 * @expectedException InvalidArgumentException
+	 */
+	public function resolveParameters_greaterThanAndNullValues_shouldThrow() {
+		$statement = new StatementTokenizer('SELECT * FROM table WHERE a<?');
+
+		$params = array(null);
+		$statement->resolveParameters($params);
+	}
 }

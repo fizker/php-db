@@ -111,25 +111,52 @@ class Statement extends KeywordStatement {
 }
 
 class WhereStatement extends Statement {
-	public function isComparison() {}
+	private $before, $token, $after;
+	public function __construct($str) {
+		$nullComparator = new ParamTokenizer($str, '!=');
+		$this->token = '!=';
+		if($nullComparator->count() == 0) {
+			$nullComparator = new ParamTokenizer($str, '<>');
+			$this->token = '<>';
+		}
+		if($nullComparator->count() == 0) {
+			$nullComparator = new ParamTokenizer($str, '=');
+			$this->token = '=';
+		}
+		$this->before = $nullComparator->next();
+		$this->after = $nullComparator->next();
+		parent::__construct($str);
+	}
+
+	public function isPotentialNullComparison() {
+		return $this->after != null;
+	}
 
 	public function isEqualityComparison() {
-		return !$this->isInequalityComparison();
+		return $this->token == '=';
 	}
 	public function isInequalityComparison() {
-		return strpos($this->value, '!=') !== false || strpos($this->value, '<>') !== false;
+		$value = $this->token;
+		return $value == '!=' || $value == '<>';
 	}
 
-	protected function addParameter($current, $val) {
-		if($val === null) {
-			$comparator = array('!=', '<>');
+	public function resolveParameters($params) {
+		if(sizeof($params) > 0 && ($val = $params[0]) === null) {
+			if(!$this->isPotentialNullComparison()) {
+				throw new \InvalidArgumentException('NULL values cannot be compared like this: '.$this->value);
+			}
+
 			$suffix = ' IS NOT NULL';
 			if($this->isEqualityComparison()) {
-				$comparator = '=';
 				$suffix = ' IS NULL';
 			}
-			return str_replace($comparator, '', $current.$this->params->next()) . $suffix;
+
+			$this->params = new ParamTokenizer($this->before.$this->after.$suffix);
+			$this->value = $this->params->next().$this->params->next();
+
+			array_shift($params);
+			return $params;
 		}
-		return parent::addParameter($current, $val);
+		return parent::resolveParameters($params);
 	}
 }

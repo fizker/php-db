@@ -19,6 +19,17 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * @test
 	 */
+	public function next_twoCharacterToken_tokenizesCorrectly() {
+		$tokenizer = new ParamTokenizer('abcd', 'bc');
+
+		$this->assertSame('a', $tokenizer->next());
+
+		$this->assertSame('d', $tokenizer->next());
+	}
+
+	/**
+	 * @test
+	 */
 	public function next_NoParamsAndSecondCall_ReturnsNull() {
 		$tokenizer = new ParamTokenizer('abc');
 
