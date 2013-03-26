@@ -2,7 +2,6 @@
 namespace sql\tokenizers;
 
 class StatementTokenizer {
-	private $where, $type;
 	private $tokens;
 
 	public function __construct($str) {
@@ -41,10 +40,6 @@ class StatementTokenizer {
 			}
 			$this->tokens[] = new WhereStatement($token->value);
 		}
-	}
-
-	public function getWhere() {
-		return $this->where;
 	}
 
 	public function __toString() {
@@ -99,10 +94,6 @@ class Statement extends KeywordStatement {
 		$this->params = new ParamTokenizer($str);
 	}
 
-	protected function addParameter($current, $val) {
-		return $current . \sql\builders\QueryBuilder::escape($val) . $this->params->next();
-	}
-
 	public function resolveParameters($params) {
 		$return = $this->params->next();
 		$l = $this->params->count();
@@ -110,7 +101,9 @@ class Statement extends KeywordStatement {
 			throw new \InvalidArgumentException('Too few parameters given');
 		}
 		for($i = 0; $i < $l; $i++) {
-			$return = $this->addParameter($return, array_shift($params));
+			$val = array_shift($params);
+			$next = $this->params->next();
+			$return .= \sql\builders\QueryBuilder::escape($val) . $next;
 		}
 		$this->value = $return;
 		return $params;
@@ -135,14 +128,14 @@ class WhereStatement extends Statement {
 		parent::__construct($str);
 	}
 
-	public function isPotentialNullComparison() {
+	private function isPotentialNullComparison() {
 		return $this->after != null;
 	}
 
-	public function isEqualityComparison() {
+	private function isEqualityComparison() {
 		return $this->token == '=';
 	}
-	public function isInequalityComparison() {
+	private function isInequalityComparison() {
 		$value = $this->token;
 		return $value == '!=' || $value == '<>';
 	}
