@@ -119,6 +119,35 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 */
+	public function addParams_positiveTestForNullParam_sqlIsValid() {
+		$db = new TestableQueryBuilder('db');
+
+		$result = $db->addParams('WHERE c=?', array(null));
+
+		$this->assertEquals('WHERE c IS NULL', $result);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider provider_addParams_negativeTestForNullParam_sqlIsValid
+	 */
+	public function addParams_negativeTestForNullParam_sqlIsValid($comparator) {
+		$db = new TestableQueryBuilder('db');
+
+		$result = $db->addParams('WHERE c' . $comparator . '?', array(null));
+
+		$this->assertEquals('WHERE c IS NOT NULL', $result);
+	}
+	public function provider_addParams_negativeTestForNullParam_sqlIsValid() {
+		return array(
+		         array('!=')
+		       , array('<>')
+		       );
+	}
+
+	/**
+	 * @test
 	 * @expectedException InvalidArgumentException
 	 */
 	public function addParams_TooFewParams_Throws() {

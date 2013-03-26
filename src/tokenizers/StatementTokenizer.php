@@ -13,6 +13,7 @@ class StatementTokenizer {
 			'WHERE', 'ORDER BY', 'LIMIT', 'GROUP BY'
 		));
 
+		$currentKeyword = '';
 		$this->tokens = array();
 		foreach($keywords as $token) {
 			if($token->isKeyword) {
@@ -60,6 +61,9 @@ class StatementTokenizer {
 			$params = $token->resolveParameters($params);
 			$str .= $token->value.' ';
 		}
+		if(sizeof($params) > 0) {
+			throw new \InvalidArgumentException('Too many parameters given');
+		}
 		return trim($str);
 	}
 
@@ -102,6 +106,9 @@ class Statement extends KeywordStatement {
 	public function resolveParameters($params) {
 		$return = $this->params->next();
 		$l = $this->params->count();
+		if(sizeof($params) < $l) {
+			throw new \InvalidArgumentException('Too few parameters given');
+		}
 		for($i = 0; $i < $l; $i++) {
 			$return = $this->addParameter($return, array_shift($params));
 		}
