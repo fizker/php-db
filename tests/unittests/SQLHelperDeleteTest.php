@@ -52,17 +52,25 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @dataProvider provider_where_ParamsAdded_ParamsUsed
 	 */
-	public function where_ParamsAdded_ParamsUsed() {
+	public function where_ParamsAdded_ParamsUsed($param, $where) {
 		$db = $this->createHelper();
-		
+
 		$result = $db
 			->delete()
 			->from('table')
-			->where('a=?', 2)
+			->where('a=?', $param)
 			->toString();
-		
-		$this->assertEquals('DELETE FROM `db`.table WHERE a="2"', $result);
+
+		$this->assertEquals('DELETE FROM `db`.table WHERE '.$where, $result);
+	}
+	public function provider_where_ParamsAdded_ParamsUsed() {
+		return array(
+			  array(2, 'a="2"')
+			, array('', 'a=""')
+			, array(null, 'a IS NULL')
+		);
 	}
 
 	public function createHelper() {
@@ -75,4 +83,3 @@ class SQLHelperDeleteTest extends PHPUnit_Framework_TestCase {
 		return $db;
 	}
 }
-?>

@@ -43,7 +43,8 @@ class SelectBuilder extends QueryBuilder {
 	}
 
 	public function where($where, $param = false) {
-		if($param != false) {
+		$where = 'WHERE '.$where;
+		if(func_num_args() > 1) {
 			$params = array_slice(func_get_args(), 1);
 			$where = $this->addParams($where, $params);
 		}
@@ -83,7 +84,7 @@ class SelectBuilder extends QueryBuilder {
 		}
 
 		if($this->where)
-			$query .= " WHERE $this->where";
+			$query .= " $this->where";
 
 		if($this->group)
 			$query .= ' GROUP BY '.$this->group;

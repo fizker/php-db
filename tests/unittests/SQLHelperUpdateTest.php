@@ -107,17 +107,26 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @dataProvider provider_where_ParamsAdded_ParamsUsed
 	 */
-	public function where_ParamsAdded_ParamsUsed() {
+	public function where_ParamsAdded_ParamsUsed($param, $where) {
 		$db = $this->createHelper();
-		
+
 		$result = $db
 			->update('table')
 			->set(array('a'=> 'b'))
-			->where('c=?', 2)
+			->where('c=?', $param)
 			->toString();
-		
-		$this->assertContains('WHERE c="2"', $result);
+
+		$this->assertContains('WHERE '.$where, $result);
+		$this->assertNotContains('WHERE WHERE', $result);
+	}
+	public function provider_where_ParamsAdded_ParamsUsed() {
+		return array(
+			  array(2, 'c="2"')
+			, array('', 'c=""')
+			, array(null, 'c IS NULL')
+		);
 	}
 
 	/**
@@ -172,4 +181,3 @@ class SQLHelperUpdateTest extends PHPUnit_Framework_TestCase {
 		return $db;
 	}
 }
-?>
