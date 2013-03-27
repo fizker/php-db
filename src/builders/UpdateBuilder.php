@@ -16,7 +16,8 @@ class UpdateBuilder extends QueryBuilder {
 		return $this;
 	}
 	public function where($where, $param = false) {
-		if($param != false) {
+		$where = 'WHERE '.$where;
+		if(func_num_args() > 1) {
 			$params = array_slice(func_get_args(), 1);
 			$where = self::addParams($where, $params);
 		}
@@ -35,7 +36,7 @@ class UpdateBuilder extends QueryBuilder {
 		}
 
 		if($this->where) {
-			$query .= ' WHERE '.$this->where;
+			$query .= ' '.$this->where;
 		}
 
 		return $query;

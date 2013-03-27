@@ -10,10 +10,21 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_NoParams_ReturnsString() {
 		$tokenizer = new ParamTokenizer('abc');
-		
+
 		$result = $tokenizer->next();
-		
+
 		$this->assertSame('abc', $result);
+	}
+
+	/**
+	 * @test
+	 */
+	public function next_twoCharacterToken_tokenizesCorrectly() {
+		$tokenizer = new ParamTokenizer('abcd', 'bc');
+
+		$this->assertSame('a', $tokenizer->next());
+
+		$this->assertSame('d', $tokenizer->next());
 	}
 
 	/**
@@ -21,10 +32,10 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_NoParamsAndSecondCall_ReturnsNull() {
 		$tokenizer = new ParamTokenizer('abc');
-		
+
 		$tokenizer->next();
 		$result = $tokenizer->next();
-		
+
 		$this->assertSame(false, $result);
 	}
 
@@ -33,10 +44,10 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_SingleParam_ReturnsSurroundingStrings() {
 		$tokenizer = new ParamTokenizer('abc ? def');
-		
+
 		$first = $tokenizer->next();
 		$second = $tokenizer->next();
-		
+
 		$this->assertSame('abc ', $first);
 		$this->assertSame(' def', $second);
 	}
@@ -46,9 +57,9 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_ParamInQuotes_ReturnsAllString() {
 		$tokenizer = new ParamTokenizer('abc "?" def');
-		
+
 		$result = $tokenizer->next();
-		
+
 		$this->assertSame('abc "?" def', $result);
 	}
 
@@ -57,9 +68,9 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function count_ParamIsFirstChar_Returns1() {
 		$tokenizer = new ParamTokenizer('? abc');
-		
+
 		$result = $tokenizer->count();
-		
+
 		$this->assertSame(1, $result);
 	}
 
@@ -68,9 +79,9 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function count_ParamIsLastChar_Returns1() {
 		$tokenizer = new ParamTokenizer('abc ?');
-		
+
 		$result = $tokenizer->count();
-		
+
 		$this->assertSame(1, $result);
 	}
 
@@ -79,7 +90,7 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_MultipleParams_AllAreTokenized() {
 		$tokenizer = new ParamTokenizer('? abc "?" ? ab ?');
-		
+
 		$this->assertSame('', $tokenizer->next(), 'Before first param');
 		$this->assertSame(' abc "?" ', $tokenizer->next(), 'Before second param');
 		$this->assertSame(' ab ', $tokenizer->next(), 'Before last param');
@@ -92,7 +103,7 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function reset_TwoTokensFetched_FirstTokenIsRepeated() {
 		$tokenizer = new ParamTokenizer('? abc "?" ? ab ?');
-		
+
 		$this->assertSame('', $tokenizer->next(), 'Before first param');
 		$this->assertSame(' abc "?" ', $tokenizer->next(), 'Before second param');
 		$tokenizer->reset();
@@ -105,7 +116,7 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function ctor_CharIsAltered_TokenizesCorrectly() {
 		$tokenizer = new ParamTokenizer(', abc "," , ab ,', ',');
-		
+
 		$this->assertSame('', $tokenizer->next(), 'Before first param');
 		$this->assertSame(' abc "," ', $tokenizer->next(), 'Before second param');
 		$this->assertSame(' ab ', $tokenizer->next(), 'Before last param');
@@ -121,7 +132,7 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 			', abc (,) , ab ,'
 			, ','
 			, array( array('(',')') ));
-		
+
 		$this->assertSame('', $tokenizer->next(), 'Before first param');
 		$this->assertSame(' abc (,) ', $tokenizer->next(), 'Before second param');
 		$this->assertSame(' ab ', $tokenizer->next(), 'Before last param');
@@ -134,9 +145,9 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function next_StringContainsTwoQuotesBeforeToken_ReturnsCorrectly() {
 		$tokenizer = new ParamTokenizer('abc "?" "?"');
-		
+
 		$result = $tokenizer->next();
-		
+
 		$this->assertSame('abc "?" "?"', $result);
 	}
 
@@ -149,9 +160,8 @@ class ParamTokenizerTest extends PHPUnit_Framework_TestCase {
 			, ','
 			, array( array('(',')'), array('"'), array("'") )
 		);
-		
+
 		$this->assertSame('`a` varchar(1) DEFAULT ","', $tokenizer->next(), 'The only param');
 		$this->assertSame(false, $tokenizer->next(), 'No more tokens');
 	}
 }
-?>

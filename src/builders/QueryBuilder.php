@@ -1,10 +1,10 @@
 <?php
 namespace sql\builders;
 
-require_once(__DIR__.'/../tokenizers/ParamTokenizer.php');
+require_once(__DIR__.'/../tokenizers/StatementTokenizer.php');
 
 use \sql\Results;
-use \sql\tokenizers\ParamTokenizer;
+use \sql\tokenizers\StatementTokenizer;
 
 abstract class QueryBuilder {
 	protected $conn, $db, $prefix, $useDebug;
@@ -31,7 +31,7 @@ abstract class QueryBuilder {
 		if(!$sql) throw new \Exception($this->conn->error.".\n$query");
 		return new Results($this->conn, $sql);
 	}
-	
+
 	public static function escape($str) {
 		if($str === null) {
 			return 'NULL';
@@ -44,24 +44,16 @@ abstract class QueryBuilder {
 			array('\\\\',	'""'), 
 			$str).'"';
 	}
+
 	public function prefixTable($table) {
 		if($this->prefix && strpos($table, $this->prefix) !== 0) {
 			$table = $this->prefix.'_'.$table;
 		}
 		return '`'.$this->db.'`.'.$table;
 	}
-	
+
 	public static function addParams($str, $params) {
-		$tokens = new ParamTokenizer($str);
-		if($tokens->count() !== sizeof($params)) {
-			throw new \InvalidArgumentException('Number of params does not match');
-		}
-		$str = $tokens->next();
-		foreach($params as $param) {
-			$str .= self::escape($param);
-			$str .= $tokens->next();
-		}
-		return $str;
+		$statement = new StatementTokenizer($str);
+		return $statement->resolveParameters($params);
 	}
 }
-?>

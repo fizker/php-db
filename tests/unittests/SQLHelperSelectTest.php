@@ -150,17 +150,26 @@ class SQLHelperSelectTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @test
+	 * @dataProvider provider_where_ParamsAdded_ParamsUsed
 	 */
-	public function where_ParamsAdded_ParamsUsed() {
+	public function where_ParamsAdded_ParamsUsed($param, $where) {
 		$db = $this->createHelper();
-		
+
 		$result = $db
 			->select('*')
 			->from('table')
-			->where('a=?', 2)
+			->where('a=?', $param)
 			->toString();
-		
-		$this->assertContains('WHERE a="2"', $result);
+
+		$this->assertContains('WHERE '.$where, $result);
+		$this->assertNotContains('WHERE WHERE', $result);
+	}
+	public function provider_where_ParamsAdded_ParamsUsed() {
+		return array(
+			  array(2, 'a="2"')
+			, array('', 'a=""')
+			, array(null, 'a IS NULL')
+		);
 	}
 
 	/**
