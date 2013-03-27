@@ -49,7 +49,7 @@ Connecting to the database
 
 	$helper =
 		new \sql\SQLHelper(array(
-			'user'=> 'username'
+			  'user'=> 'username'
 			, 'password'=> 'password'
 			, 'db'=> 'database name'
 		
@@ -59,7 +59,7 @@ Connecting to the database
 
 	// Calling setPrefix will ensure that all tables are prefixed.
 	// This makes it simple to use the same codebase multiple times on the
-	// same server simultaneously.
+	// same server.
 		->setPrefix('abc')
 
 	// Creating the actual connection
